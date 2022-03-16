@@ -28,7 +28,7 @@ class Follow_speed:
         self.change_speed_obj = change_speed_obj
 
     def change_current_speed(self, current_speed):
-        self.current_speed[0] = current_speed
+        self.current_speed = current_speed
     
     def change_following_speed(self, following_speed):
         self.following_speed = following_speed
@@ -47,7 +47,7 @@ class Follow_speed:
         except Exception:
             return [self.current_speed[0],'e']
 
-    def get_following_speed(self):
+    def get_speed_limit(self):
         result = OCR([970, 20, 950, 30],150)
         try:
             return int(result)
