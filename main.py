@@ -39,7 +39,7 @@ class Main:
                     self.follow_speed.change_following_speed(new_following_speed)
                 # # If the old is higher than the new then change to the newn (for example if under_signal_restriction = 'yellow' and old following_speed is 45 and the new is 30 then we can change the following_speed and speed_limit)
                 # if self.follow_speed.following_speed > new_following_speed:
-                #     self.follow_speed.change_following_speed(new_following_speed)f
+                #     self.follow_speed.change_following_speed(new_following_speed)
                 # # If the old is lower than the new,
                 # elif self.follow_speed.following_speed < new_following_speed:
                 #     #if (the new is higher than the speed restriction by the signal),
