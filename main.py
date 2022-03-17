@@ -6,7 +6,7 @@ import keyboard
 from datetime import datetime, timedelta
 from sys import argv
 
-class Audodrive:
+class Autodrive:
     def __init__(self,top_speed) -> None:
         self.under_signal_restriction = False
         self.approaching_station = False
@@ -143,7 +143,8 @@ class Audodrive:
     def determine_following_speed(self):
         pass
 
-    def main(self):
+    def start(self):
+        """Main method to start the autodrive"""
         self.last_timestamp = datetime.now()
         while True:
             got_current_speed = self.follow_speed.get_current_speed(self.top_speed)
@@ -164,4 +165,4 @@ class Audodrive:
 # Todo - may add help for the argument later.            
 if __name__=='__main__':            
     top_speed = int(argv[1])
-    Audodrive(top_speed).main()
+    Autodrive(top_speed).start()
