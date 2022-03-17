@@ -6,7 +6,7 @@ import keyboard
 from datetime import datetime, timedelta
 from sys import argv
 
-class Main:
+class Audodrive:
     def __init__(self,top_speed) -> None:
         self.under_signal_restriction = False
         self.approaching_station = False
@@ -160,6 +160,8 @@ class Main:
                 self.follow_speed.change_following_speed(a)
             self.is_approaching_station()
             self.load()
-            
-top_speed = int(argv[1])
-Main(top_speed).main()
+
+# Todo - may add help for the argument later.            
+if __name__=='__main__':            
+    top_speed = int(argv[1])
+    Audodrive(top_speed).main()
