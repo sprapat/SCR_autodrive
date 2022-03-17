@@ -1,11 +1,10 @@
-import keyboard
 from get_OCR import OCR
-from datetime import datetime, timedelta
 from time import sleep
 from get_current_speed import get_current_speed
+import keyboard
 
 class Change_speed:
-    def __init__(self,top_speed) -> None:
+    def __init__(self, top_speed) -> None:
         self.top_speed = top_speed
 
     def increase_speed(self,amount):
@@ -15,12 +14,10 @@ class Change_speed:
         
 
     def decrease_speed(self,amount):
-
         keyboard.press('s')
         sleep(amount/(self.top_speed/4))
         keyboard.release('s')
         
-
 class Follow_speed:
     def __init__(self,change_speed_obj) -> None:
         self.following_speed = 0
@@ -40,15 +37,15 @@ class Follow_speed:
         elif speed_difference < 0:
             self.change_speed_obj.decrease_speed(abs(speed_difference))
 
-    def get_current_speed(self,top_speed):
-        result = get_current_speed(top_speed)
+    def get_current_speed(self, image, top_speed):
+        result = get_current_speed(image, top_speed)
         try:
             return [float(result),'']
         except Exception:
             return [self.current_speed[0],'e']
 
-    def get_speed_limit(self):
-        result = OCR([970, 20, 950, 30],150)
+    def get_speed_limit(self, image):
+        result = OCR(image, [970, 20, 950, 30],150)
         try:
             return int(result)
         except Exception:
