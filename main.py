@@ -13,8 +13,8 @@ class Autodrive:
         self.speed_limit = 0
         self.last_timestamp = None
         self.last_current_speed = 0
-        self.change_speed = Change_speed(top_speed)
-        self.follow_speed = Follow_speed(self.change_speed)
+        #self.change_speed = Change_speed(top_speed)
+        #self.follow_speed = Follow_speed(self.change_speed)
         self.disable_control = False
         self.top_speed = top_speed
         self.aspect = None
@@ -137,11 +137,23 @@ class Autodrive:
 
     def load(self):
         ocr = OCR([820,30,830,300],50,True)
-        if 'Press T to open' in ocr or  'Press T to begin' in ocr or (('Press T to close doors' in ocr or 'Doors closing' in ocr) and self.under_signal_restriction != 'red'):
+        if ('Press T to open' in ocr) or \
+           ('Press T to begin' in ocr) or \
+           (('Press T to close doors' in ocr or 'Doors closing' in ocr) and (self.under_signal_restriction != 'red')):
             keyboard.press_and_release('t')
             
     def determine_following_speed(self):
         pass
+
+    def print_train_info(self):
+        current_speed = f'The train\'s current speed is: {self.follow_speed.current_speed[0]}'
+        code_speed = f'speed this code is following is: {self.follow_speed.following_speed}'
+        speed_limit = f'the speed limit if the code is under signal restriction is: {self.speed_limit}'
+        is_under_signal_restriction = f'Is the code under signal restriction?: {self.under_signal_restriction}'
+        next_signal_aspect = f'The next signal aspect is: {self.aspect}'
+        approaching_station = f'approaching station?: {self.approaching_station}'
+        disabled_control = f'disabled control?: {self.disable_control}'
+        print(','.join[current_speed, code_speed, speed_limit, is_under_signal_restriction, next_signal_aspect, approaching_station, disabled_control])
 
     def start(self):
         """Main method to start the autodrive"""
@@ -153,7 +165,7 @@ class Autodrive:
             new_following_speed = self.follow_speed.get_following_speed()
             self.aspect = self.get_signal_aspect()
             self.change_speeds(new_current_speed, new_following_speed)
-            print(f'The train\'s current speed is: {self.follow_speed.current_speed[0]}, speed this code is following is: {self.follow_speed.following_speed},the speed limit if the code is under signal restriction is: {self.speed_limit}, Is the code under signal restriction?: {self.under_signal_restriction}, The next signal aspect is: {self.aspect}, approaching station?: {self.approaching_station}, disabled control?: {self.disable_control}')
+            self.print_train_info()
             if (not get_color([970, 10, 1262, 10], [0,0,0])) or self.under_signal_restriction != False:
                 self.acknowledge_AWS()
                 a = self.follow_signal_restriction()

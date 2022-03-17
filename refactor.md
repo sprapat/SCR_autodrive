@@ -10,3 +10,8 @@ Rename main method to start to make it easier to understand.
 
 It turns out that we need to install some python modules.
 So I create "requirements.txt" so we can use 'pip install -r requirements.txt" to install all module dependencies.
+> commit
+
+Refactor print_train_info method out to make the long print statement easier to read
+> commit
+
