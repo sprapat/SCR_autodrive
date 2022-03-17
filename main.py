@@ -5,7 +5,7 @@ import keyboard
 from sys import argv
 from get_screenshot import get_screenshot
 
-class Main:
+class Autodrive:
     def __init__(self,top_speed) -> None:
         self.signal_restricted_speed = False
         self.approaching_station = False
