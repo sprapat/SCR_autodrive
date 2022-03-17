@@ -97,6 +97,7 @@ class Main:
             if self.speed_limit < self.signal_restricted_speed:
                 return self.speed_limit
             return self.signal_restricted_speed
+            
         return self.speed_limit
 
     def main(self):
