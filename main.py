@@ -13,8 +13,8 @@ class Autodrive:
         self.speed_limit = 0
         self.last_timestamp = None
         self.last_current_speed = 0
-        #self.change_speed = Change_speed(top_speed)
-        #self.follow_speed = Follow_speed(self.change_speed)
+        self.change_speed = Change_speed(top_speed)
+        self.follow_speed = Follow_speed(self.change_speed)
         self.disable_control = False
         self.top_speed = top_speed
         self.aspect = None
