@@ -65,6 +65,8 @@ class Autodrive:
 
 
     def get_signal_aspect(self):
+        # POSSIBLE_IMPROVEMENT
+        # Multiple calls to get_color function mean multiple screen capture
         if get_color([940, 10, 1302, 10], [0, 190, 255]):
             return 'double yellow'
         elif get_color([980, 10, 1302, 10], [0, 190, 255]):
