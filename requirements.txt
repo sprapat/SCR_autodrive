@@ -1,0 +1,6 @@
+## Dependent modules without specifying version
+keyboard
+pytesseract
+mss
+numpy
+pyautogui

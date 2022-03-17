@@ -6,7 +6,7 @@ import keyboard
 from datetime import datetime, timedelta
 from sys import argv
 
-class Main:
+class Autodrive:
     def __init__(self,top_speed) -> None:
         self.under_signal_restriction = False
         self.approaching_station = False
@@ -65,6 +65,8 @@ class Main:
 
 
     def get_signal_aspect(self):
+        # POSSIBLE_IMPROVEMENT
+        # Multiple calls to get_color function mean multiple screen capture
         if get_color([940, 10, 1302, 10], [0, 190, 255]):
             return 'double yellow'
         elif get_color([980, 10, 1302, 10], [0, 190, 255]):
@@ -137,13 +139,26 @@ class Main:
 
     def load(self):
         ocr = OCR([820,30,830,300],50,True)
-        if 'Press T to open' in ocr or  'Press T to begin' in ocr or (('Press T to close doors' in ocr or 'Doors closing' in ocr) and self.under_signal_restriction != 'red'):
+        if ('Press T to open' in ocr) or \
+           ('Press T to begin' in ocr) or \
+           (('Press T to close doors' in ocr or 'Doors closing' in ocr) and (self.under_signal_restriction != 'red')):
             keyboard.press_and_release('t')
             
     def determine_following_speed(self):
         pass
 
-    def main(self):
+    def print_train_info(self):
+        current_speed = f'The train\'s current speed is: {self.follow_speed.current_speed[0]}'
+        code_speed = f'speed this code is following is: {self.follow_speed.following_speed}'
+        speed_limit = f'the speed limit if the code is under signal restriction is: {self.speed_limit}'
+        is_under_signal_restriction = f'Is the code under signal restriction?: {self.under_signal_restriction}'
+        next_signal_aspect = f'The next signal aspect is: {self.aspect}'
+        approaching_station = f'approaching station?: {self.approaching_station}'
+        disabled_control = f'disabled control?: {self.disable_control}'
+        print(','.join[current_speed, code_speed, speed_limit, is_under_signal_restriction, next_signal_aspect, approaching_station, disabled_control])
+
+    def start(self):
+        """Main method to start the autodrive"""
         self.last_timestamp = datetime.now()
         while True:
             got_current_speed = self.follow_speed.get_current_speed(self.top_speed)
@@ -152,7 +167,7 @@ class Main:
             new_following_speed = self.follow_speed.get_following_speed()
             self.aspect = self.get_signal_aspect()
             self.change_speeds(new_current_speed, new_following_speed)
-            print(f'The train\'s current speed is: {self.follow_speed.current_speed[0]}, speed this code is following is: {self.follow_speed.following_speed},the speed limit if the code is under signal restriction is: {self.speed_limit}, Is the code under signal restriction?: {self.under_signal_restriction}, The next signal aspect is: {self.aspect}, approaching station?: {self.approaching_station}, disabled control?: {self.disable_control}')
+            self.print_train_info()
             if (not get_color([970, 10, 1262, 10], [0,0,0])) or self.under_signal_restriction != False:
                 self.acknowledge_AWS()
                 a = self.follow_signal_restriction()
@@ -160,6 +175,8 @@ class Main:
                 self.follow_speed.change_following_speed(a)
             self.is_approaching_station()
             self.load()
-            
-top_speed = int(argv[1])
-Main(top_speed).main()
+
+# Todo - may add help for the argument later.            
+if __name__=='__main__':            
+    top_speed = int(argv[1])
+    Autodrive(top_speed).start()
