@@ -40,7 +40,6 @@ class Main:
         else:
             self.last_current_speed = self.follow_speed.current_speed[0]
 
-
     def get_signal_aspect(self, image):
         if get_color(image, [940, 10, 1302, 10], [0, 190, 255]):
             return 'double yellow'
@@ -56,9 +55,9 @@ class Main:
     def get_signal_restricted_speed(self):
         signal_speed_dict = {'yellow':45, 'red':0, 'double yellow':False, 'green':False, 'white':False, None:False}
         self.signal_restricted_speed = signal_speed_dict[self.aspect]
-        if self.signal_restricted_speed != False and self.have_AWS == True:
+        if self.signal_restricted_speed != False and (self.have_AWS == True or self.loading == True):
             self.under_signal_restriction = self.aspect
-        else:
+        elif self.signal_restricted_speed == False:
             self.under_signal_restriction = False
 
     def acknowledge_AWS(self):
@@ -90,15 +89,15 @@ class Main:
 
     def determine_following_speed(self):
         if self.approaching_station == True:
+            if self.speed_limit < 45:
+                return self.speed_limit
             return 45
-        elif self.signal_restricted_speed != False and self.under_signal_restriction == True:
+
+        elif self.signal_restricted_speed != False and self.under_signal_restriction != False:
             if self.speed_limit < self.signal_restricted_speed:
                 return self.speed_limit
-            else:
-                return self.signal_restricted_speed
-        else:
-            return self.speed_limit
-
+            return self.signal_restricted_speed
+        return self.speed_limit
 
     def main(self):
         while True:
