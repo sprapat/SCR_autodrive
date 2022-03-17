@@ -2,6 +2,7 @@ import numpy as np
 import pyautogui
 import cv2
 
+# POSSIBLE_IMPROVEMENT
 # The following link may provide a faster solution
 # https://stackoverflow.com/questions/3800458/quickly-getting-the-color-of-some-pixels-on-the-screen-in-python-on-windows-7
 
