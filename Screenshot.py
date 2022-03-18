@@ -104,11 +104,14 @@ class ScreenShot:
         return self.cache['speed_limit']
 
     def get_current_speed(self, top_speed):
-        mon = [933, 90, 906, 1]
-        image2 = self.image[mon[0]:mon[0]+mon[1], mon[2]:mon[2]+mon[3]]
-        sought = [85,176,0]
-        result = round(np.count_nonzero(np.all(image2==sought,axis=2)) * (top_speed/90))
-        try:
-            return int(result)
-        except Exception:
-            return None
+        if 'current_speed' not in self.cache:
+            mon = [933, 90, 906, 1]
+            image2 = self.image[mon[0]:mon[0]+mon[1], mon[2]:mon[2]+mon[3]]
+            sought = [85,176,0]
+            result = round(np.count_nonzero(np.all(image2==sought,axis=2)) * (top_speed/90))
+            try:
+                result = int(result)
+            except Exception:
+                result = None
+            self.cache['current_speed'] = result
+        return self.cache['current_speed']
