@@ -15,3 +15,6 @@ So I create "requirements.txt" so we can use 'pip install -r requirements.txt" t
 Refactor print_train_info method out to make the long print statement easier to read
 > commit
 
+3/18/2022
+### main.py
+add some comments while reading the code

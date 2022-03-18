@@ -7,8 +7,7 @@ from get_screenshot import get_screenshot
 
 class Autodrive:
     def __init__(self,top_speed) -> None:
-        self.signal_restricted_speed = False
-        self.approaching_station = False
+        # Parameters
         self.speed_limit = 0
         self.last_current_speed = 0
         self.change_speed_obj = Change_speed(top_speed)
@@ -16,7 +15,11 @@ class Autodrive:
         self.disable_control = False
         self.top_speed = top_speed
         self.aspect = None
-        self.have_AWS = False
+
+        # Flags
+        self.signal_restricted_speed = False  
+        self.approaching_station = False        
+        self.have_AWS = False # Automatic Warning System
         self.under_signal_restriction = False
         self.loading = False
 
@@ -108,7 +111,7 @@ class Autodrive:
         next_signal_aspect = f'The next signal aspect is: {self.aspect}'
         approaching_station = f'approaching station?: {self.approaching_station}'
         disabled_control = f'disabled control?: {self.disable_control}'
-        print(','.join[current_speed, code_speed, speed_limit, is_under_signal_restriction, next_signal_aspect, approaching_station, disabled_control])
+        print(','.join([current_speed, code_speed, speed_limit, is_under_signal_restriction, next_signal_aspect, approaching_station, disabled_control]))
 
     def start(self):
         while True:
