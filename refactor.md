@@ -34,3 +34,4 @@ But the code is cleaner and easier to understand. We'll solve the problem of slo
 > commit
 
 TODO: create some caching mechanisms in Screenshot so we don't have to call OCR which is pretty slow.
+I'll use a dictionary to keep cache values and reset every time we capture a new screen shot.
