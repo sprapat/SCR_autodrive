@@ -16,10 +16,12 @@ class Autodrive:
         self.follow_speed = Follow_speed(self.change_speed_obj)
         self.top_speed = top_speed
         self.aspect = None
+        self.screen_shot = ScreenShot()
+        # Initialize value
+        self.screen_shot.capture()
 
         # Flags
         self.signal_restricted_speed = False  
-        self.approaching_station = False
         self.disable_control = False             
         self.have_AWS = False # Automatic Warning System
         self.under_signal_restriction = False
@@ -51,7 +53,7 @@ class Autodrive:
         keyboard.press_and_release('q')
 
     def determine_following_speed(self):
-        if self.approaching_station == True:
+        if self.screen_shot.is_approaching_station() == True:
             if self.speed_limit < 45:
                 return self.speed_limit
             return 45
@@ -69,7 +71,7 @@ class Autodrive:
         speed_limit = f'the speed limit if the code is under signal restriction is: {self.speed_limit}'
         is_under_signal_restriction = f'Is the code under signal restriction?: {self.under_signal_restriction}'
         next_signal_aspect = f'The next signal aspect is: {self.aspect}'
-        approaching_station = f'approaching station?: {self.approaching_station}'
+        approaching_station = f'approaching station?: {self.screen_shot.is_approaching_station()}'
         disabled_control = f'disabled control?: {self.disable_control}'
         print(','.join([current_speed, code_speed, speed_limit, is_under_signal_restriction, next_signal_aspect, approaching_station, disabled_control]))
 
@@ -77,37 +79,35 @@ class Autodrive:
         return not get_color(image, [970, 10, 1262, 10], [0,0,0])
 
     def start(self):
-        screen_shot = ScreenShot()
         while True:
             self.print_train_info()
-            screen_shot.capture()
-            if screen_shot.is_required_AWS_acknowledge():
+            self.screen_shot.capture()
+            if self.screen_shot.is_required_AWS_acknowledge():
                 self.acknowledge_AWS()
                 self.have_AWS = True
             else:
                 self.have_AWS = False     
 
-            self.aspect = screen_shot.get_signal_aspect()           
-            self.approaching_station = screen_shot.is_approaching_station()
+            self.aspect = self.screen_shot.get_signal_aspect()           
 
-            if screen_shot.is_at_station():
+            if self.screen_shot.is_at_station():
                 self.disable_control = True
             else:
                 self.disable_control = False
             
-            if screen_shot.need_load_passenger_action():
+            if self.screen_shot.need_load_passenger_action():
                 keyboard.press_and_release('t')
                 self.loading = True
-            if screen_shot.need_close_door(self.under_signal_restriction):
+            if self.screen_shot.need_close_door(self.under_signal_restriction):
                 keyboard.press_and_release('t')
                 self.loading = False
 
             # read current speed from screen and keep in Follow_speed
-            current_speed = screen_shot.get_current_speed( self.top_speed)
+            current_speed = self.screen_shot.get_current_speed( self.top_speed)
             if current_speed is not None:
                 self.follow_speed.change_current_speed(current_speed)
             # read speed limit from screen and keep in Autodrive
-            speed_limit = screen_shot.get_speed_limit()
+            speed_limit = self.screen_shot.get_speed_limit()
             if speed_limit is not None:
                 self.speed_limit = speed_limit
                 
