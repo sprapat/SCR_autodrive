@@ -66,9 +66,9 @@ class Autodrive:
         # signal_speed_dict = {'yellow':45, 'red':0, 'double yellow':False, 'green':False, 'white':False, None:False}
         # self.signal_restricted_speed = self.SIGNAL_SPEED_DICT[self.aspect]
         if self.signal_restricted_speed != False and (self.have_AWS == True or self.loading == True):
-            self.under_signal_restriction = self.aspect
+            return self.aspect
         elif self.signal_restricted_speed == False:
-            self.under_signal_restriction = False
+            return False
 
     def acknowledge_AWS(self):
         """Perform action to acknowledge AWS"""
@@ -144,7 +144,7 @@ class Autodrive:
             # get signal restricted speed
             self.signal_restricted_speed = self.SIGNAL_SPEED_DICT[self.aspect]
             self.under_signal_restriction = self.is_under_signal_restriction()
-            
+
             self.follow_speed.change_following_speed(self.determine_following_speed())
             self.change_speed()
 
