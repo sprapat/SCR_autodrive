@@ -100,9 +100,19 @@ class Autodrive:
             
         return self.speed_limit
 
-    def main(self):
+    def print_train_info(self):
+        current_speed = f'The train\'s current speed is: {self.follow_speed.current_speed[0]}'
+        code_speed = f'speed this code is following is: {self.follow_speed.following_speed}'
+        speed_limit = f'the speed limit if the code is under signal restriction is: {self.speed_limit}'
+        is_under_signal_restriction = f'Is the code under signal restriction?: {self.under_signal_restriction}'
+        next_signal_aspect = f'The next signal aspect is: {self.aspect}'
+        approaching_station = f'approaching station?: {self.approaching_station}'
+        disabled_control = f'disabled control?: {self.disable_control}'
+        print(','.join[current_speed, code_speed, speed_limit, is_under_signal_restriction, next_signal_aspect, approaching_station, disabled_control])
+
+    def start(self):
         while True:
-            print(f'The train\'s current speed is: {self.follow_speed.current_speed[0]}, speed this code is following is: {self.follow_speed.following_speed},the speed limit if the code is under signal restriction is: {self.speed_limit}, Is the code under signal restriction?: {self.under_signal_restriction}, The next signal aspect is: {self.aspect}, approaching station?: {self.approaching_station}, disabled control?: {self.disable_control}')
+            self.print_train_info()
             image = get_screenshot()
             if (not get_color(image, [970, 10, 1262, 10], [0,0,0])):
                 self.acknowledge_AWS()
@@ -117,6 +127,7 @@ class Autodrive:
             self.get_signal_restricted_speed()
             self.follow_speed.change_following_speed(self.determine_following_speed())
             self.change_speed()
-            
-top_speed = int(argv[1])
-Main(top_speed).main()
+
+if __name__=='__main__':            
+    top_speed = int(argv[1])
+    Autodrive(top_speed).start()
