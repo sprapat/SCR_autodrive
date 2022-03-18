@@ -17,4 +17,5 @@ Refactor print_train_info method out to make the long print statement easier to 
 
 3/18/2022
 ### main.py
-add some comments while reading the code
+* add some comments while reading the code
+* move signal_speed_dict as class constant

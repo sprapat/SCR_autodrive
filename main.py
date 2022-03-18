@@ -6,19 +6,21 @@ from sys import argv
 from get_screenshot import get_screenshot
 
 class Autodrive:
+    SIGNAL_SPEED_DICT = {'yellow':45, 'red':0, 'double yellow':False, 'green':False, 'white':False, None:False}
+
     def __init__(self,top_speed) -> None:
         # Parameters
         self.speed_limit = 0
         self.last_current_speed = 0
         self.change_speed_obj = Change_speed(top_speed)
         self.follow_speed = Follow_speed(self.change_speed_obj)
-        self.disable_control = False
         self.top_speed = top_speed
         self.aspect = None
 
         # Flags
         self.signal_restricted_speed = False  
-        self.approaching_station = False        
+        self.approaching_station = False
+        self.disable_control = False             
         self.have_AWS = False # Automatic Warning System
         self.under_signal_restriction = False
         self.loading = False
@@ -44,6 +46,7 @@ class Autodrive:
             self.last_current_speed = self.follow_speed.current_speed[0]
 
     def get_signal_aspect(self, image):
+        """Return signal aspect as string"""
         if get_color(image, [940, 10, 1302, 10], [0, 190, 255]):
             return 'double yellow'
         elif get_color(image, [980, 10, 1302, 10], [0, 190, 255]):
@@ -55,15 +58,20 @@ class Autodrive:
         elif get_color(image, [960, 10, 1300, 10], [255,255,255]):
             return 'white'
 
-    def get_signal_restricted_speed(self):
-        signal_speed_dict = {'yellow':45, 'red':0, 'double yellow':False, 'green':False, 'white':False, None:False}
-        self.signal_restricted_speed = signal_speed_dict[self.aspect]
+    def is_under_signal_restriction(self):
+        # TODO: under_signal_restriction is either False or String
+        # This is a mixed value of different type.
+        # We may change this later.
+
+        # signal_speed_dict = {'yellow':45, 'red':0, 'double yellow':False, 'green':False, 'white':False, None:False}
+        # self.signal_restricted_speed = self.SIGNAL_SPEED_DICT[self.aspect]
         if self.signal_restricted_speed != False and (self.have_AWS == True or self.loading == True):
             self.under_signal_restriction = self.aspect
         elif self.signal_restricted_speed == False:
             self.under_signal_restriction = False
 
     def acknowledge_AWS(self):
+        """Perform action to acknowledge AWS"""
         print("acknowledged")
         keyboard.press_and_release('q')
 
@@ -117,17 +125,26 @@ class Autodrive:
         while True:
             self.print_train_info()
             image = get_screenshot()
+            # check Automatic Warning System
+            # mixing between setting flag and perform action
             if (not get_color(image, [970, 10, 1262, 10], [0,0,0])):
                 self.acknowledge_AWS()
                 self.have_AWS = True
             else:
                 self.have_AWS = False
+            
+            # set Flags
             self.aspect = self.get_signal_aspect(image)
             self.is_approaching_station(image)
             self.load(image)
+
+
             self.change_current_speed(self.follow_speed.get_current_speed(image, self.top_speed))
             self.change_speed_limit(self.follow_speed.get_speed_limit(image))
-            self.get_signal_restricted_speed()
+            # get signal restricted speed
+            self.signal_restricted_speed = self.SIGNAL_SPEED_DICT[self.aspect]
+            self.under_signal_restriction = self.is_under_signal_restriction()
+            
             self.follow_speed.change_following_speed(self.determine_following_speed())
             self.change_speed()
 
