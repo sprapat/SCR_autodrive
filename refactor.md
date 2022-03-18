@@ -22,3 +22,15 @@ Refactor print_train_info method out to make the long print statement easier to 
 
 * create Screenshot.py for everything to do with screenshot (capture screenshot, OCR, detect color, get throttle position to get current speed)
 * changing several methods in Autodrive class
+
+3/19/2022
+### main.py
+In determine_following_speed method, I think there is no need to keep self.approaching_station in this class.
+Now, we can read this directly from Screenshot. So let's remove them by doing the following.
+* move screen_shot object to __init__ so we can access it anywhere in Autodrive class.
+* replace self.approaching_station with self.screen_shot.is_approaching_station()
+This will make code slower because self.screen_shot.is_approaching_station() will call OCR.
+But the code is cleaner and easier to understand. We'll solve the problem of slowness in the next step.
+> commit
+
+TODO: create some caching mechanisms in Screenshot so we don't have to call OCR which is pretty slow.

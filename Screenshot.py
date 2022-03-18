@@ -4,6 +4,7 @@ import cv2
 import pytesseract
 
 class ScreenShot:
+    """This class represents screen shot and we can ask information from screen shot"""
     def __init__(self):
         self.image = None
         pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files/Tesseract-OCR/tesseract.exe'
@@ -88,11 +89,7 @@ class ScreenShot:
 
     def get_current_speed(self, top_speed):
         mon = [933, 90, 906, 1]
-        # image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
         image2 = self.image[mon[0]:mon[0]+mon[1], mon[2]:mon[2]+mon[3]]
-        # cv2.imshow('image',image2)
-        # cv2.waitKey()
-        # cv2.imwrite('output.png',image2)
         sought = [85,176,0]
         result = round(np.count_nonzero(np.all(image2==sought,axis=2)) * (top_speed/90))
         try:
