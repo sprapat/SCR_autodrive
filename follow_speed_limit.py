@@ -21,7 +21,7 @@ class Change_speed:
 class Follow_speed:
     def __init__(self,change_speed_obj) -> None:
         self.following_speed = 0
-        self.current_speed = [0,'']
+        self.current_speed = 0
         self.change_speed_obj = change_speed_obj
 
     def change_current_speed(self, current_speed):
@@ -31,7 +31,7 @@ class Follow_speed:
         self.following_speed = following_speed
 
     def change_speed(self):
-        speed_difference = self.following_speed - self.current_speed[0]
+        speed_difference = self.following_speed - self.current_speed
         if speed_difference > 0:
             self.change_speed_obj.increase_speed(speed_difference)
         elif speed_difference < 0:
@@ -39,16 +39,8 @@ class Follow_speed:
 
     def get_current_speed(self, image, top_speed):
         result = get_current_speed(image, top_speed)
-        try:
-            return [float(result),'']
-        except Exception:
-            return [self.current_speed[0],'e']
+        
 
-    def get_speed_limit(self, image):
-        result = OCR(image, [970, 20, 950, 30],150)
-        try:
-            return int(result)
-        except Exception:
-            return self.following_speed
+
         
     

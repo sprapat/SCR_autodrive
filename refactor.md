@@ -19,3 +19,6 @@ Refactor print_train_info method out to make the long print statement easier to 
 ### main.py
 * add some comments while reading the code
 * move signal_speed_dict as class constant
+
+* create Screenshot.py for everything to do with screenshot (capture screenshot, OCR, detect color, get throttle position to get current speed)
+* changing several methods in Autodrive class
