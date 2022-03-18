@@ -108,7 +108,7 @@ class Autodrive:
         next_signal_aspect = f'The next signal aspect is: {self.aspect}'
         approaching_station = f'approaching station?: {self.approaching_station}'
         disabled_control = f'disabled control?: {self.disable_control}'
-        print(','.join[current_speed, code_speed, speed_limit, is_under_signal_restriction, next_signal_aspect, approaching_station, disabled_control])
+        print(','.join([current_speed, code_speed, speed_limit, is_under_signal_restriction, next_signal_aspect, approaching_station, disabled_control]))
 
     def start(self):
         while True:
