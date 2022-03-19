@@ -1,6 +1,4 @@
 from follow_speed_limit import Follow_speed,Change_speed
-from get_OCR import OCR
-from get_color import get_color
 import keyboard
 from sys import argv
 from Screenshot import ScreenShot
@@ -18,7 +16,7 @@ class Autodrive:
         self.aspect = None
         self.screen_shot = ScreenShot()
         # Initialize value
-        self.screen_shot.capture()
+        # self.screen_shot.capture()
 
         # Flags
         self.signal_restricted_speed = False  
@@ -75,13 +73,10 @@ class Autodrive:
         disabled_control = f'disabled control?: {self.disable_control}'
         print(','.join([current_speed, code_speed, speed_limit, is_under_signal_restriction, next_signal_aspect, approaching_station, disabled_control]))
 
-    def is_required_AWS_acknowledge(self, image):
-        return not get_color(image, [970, 10, 1262, 10], [0,0,0])
-
     def start(self):
         while True:
-            self.print_train_info()
             self.screen_shot.capture()
+            self.print_train_info()
             if self.screen_shot.is_required_AWS_acknowledge():
                 self.acknowledge_AWS()
                 self.have_AWS = True

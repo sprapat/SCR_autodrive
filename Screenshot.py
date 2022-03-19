@@ -17,9 +17,9 @@ class ScreenShot:
     def capture(self):
         self.image = cv2.cvtColor(np.array(pyautogui.screenshot()), cv2.COLOR_RGB2BGR)
         self.remove_all_cache()
+        return 'yes'
 
     def get_color(self, mon, color):
-        # image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
         cropped_image = self.image[mon[0]:mon[0]+mon[1], mon[2]:mon[2]+mon[3]]
         # cv2.imwrite('output.png',cropped_image)
         if [a for a in cropped_image[5, 5]] == color:
@@ -77,7 +77,7 @@ class ScreenShot:
             ocr = self.OCR([990,100,680,60],100,filter_result = False)[:5]
             if ocr.replace('.','',1).replace('m','',1).strip().isnumeric():
                 distance = float(ocr.replace('m','',1).strip())            
-            self.cache['distance_till_next_station'] = distance        
+                self.cache['distance_till_next_station'] = distance        
         return self.cache['distance_till_next_station']
 
     def get_loading_advisory_message(self):

@@ -35,3 +35,12 @@ But the code is cleaner and easier to understand. We'll solve the problem of slo
 
 TODO: create some caching mechanisms in Screenshot so we don't have to call OCR which is pretty slow.
 I'll use a dictionary to keep cache values and reset every time we capture a new screen shot.
+
+Fix small bug of screen_shot.get_distance_till_next_station() distance not being numeric but running "self.cache['distance_till_next_station'] = distance" anyways, causing an error.
+
+Fix bug of Autodrive.print_train_info() running screen_shot.is_approaching_station() running OCR before the screenshot is captured.
+
+* Small cleanups
+    Remove unused imports in Main.py and Follow_speed_limit.py
+    Removed unused Autodrive.is_require_AWS_aknowledge() (because now use ScreenShot.get_current_speed())
+    Removed unused Follow_speed.get_current_speed() (because now use ScreenShot.get_current_speed())
