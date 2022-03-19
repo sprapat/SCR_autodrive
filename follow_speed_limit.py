@@ -1,6 +1,5 @@
 from get_OCR import OCR
 from time import sleep
-from get_current_speed import get_current_speed
 import keyboard
 
 class Change_speed:
@@ -36,11 +35,4 @@ class Follow_speed:
             self.change_speed_obj.increase_speed(speed_difference)
         elif speed_difference < 0:
             self.change_speed_obj.decrease_speed(abs(speed_difference))
-
-    def get_current_speed(self, image, top_speed):
-        result = get_current_speed(image, top_speed)
-        
-
-
-        
-    
+ 
