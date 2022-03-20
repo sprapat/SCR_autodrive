@@ -2,6 +2,9 @@ from follow_speed_limit import Follow_speed,Change_speed
 import keyboard
 from sys import argv
 from Screenshot import ScreenShot
+from line_profiler import LineProfiler
+from time import sleep
+from datetime import datetime, timedelta
 
 class Autodrive:
     SIGNAL_SPEED_DICT = {'yellow':45, 'red':0, 'double yellow':False, 'green':False, 'white':False, 'out':False}
@@ -47,7 +50,7 @@ class Autodrive:
 
     def acknowledge_AWS(self):
         """Perform action to acknowledge AWS"""
-        print("acknowledged")
+        # print("acknowledged")
         keyboard.press_and_release('q')
 
     def determine_following_speed(self):
@@ -73,8 +76,10 @@ class Autodrive:
         disabled_control = f'disabled control?: {self.disable_control}'
         print(','.join([current_speed, code_speed, speed_limit, is_under_signal_restriction, next_signal_aspect, approaching_station, disabled_control]))
 
+    # @profile
     def start(self):
         while True:
+            before_start_timestamp = datetime.now()
             self.screen_shot.capture()
             self.print_train_info()
             if self.screen_shot.is_required_AWS_acknowledge():
@@ -89,8 +94,9 @@ class Autodrive:
                 self.disable_control = True
             else:
                 self.disable_control = False
-            
+            # print(self.screen_shot.need_load_passenger_action())
             if self.screen_shot.need_load_passenger_action():
+                
                 keyboard.press_and_release('t')
                 self.loading = True
             if self.screen_shot.need_close_door(self.under_signal_restriction):
@@ -111,7 +117,12 @@ class Autodrive:
 
             self.follow_speed.change_following_speed(self.determine_following_speed())
             self.change_speed()
+            # print(datetime.now()-before_start_timestamp)
+            # break
 
 if __name__=='__main__':            
     top_speed = int(argv[1])
     Autodrive(top_speed).start()
+# lp = LineProfiler()
+# lp_wrapper = lp(Autodrive(125).start)
+# lp.print_stats()

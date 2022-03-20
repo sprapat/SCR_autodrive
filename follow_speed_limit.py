@@ -1,4 +1,3 @@
-from get_OCR import OCR
 from time import sleep
 import keyboard
 
