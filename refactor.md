@@ -44,3 +44,8 @@ Fix bug of Autodrive.print_train_info() running screen_shot.is_approaching_stati
     Remove unused imports in Main.py and Follow_speed_limit.py
     Removed unused Autodrive.is_require_AWS_aknowledge() (because now use ScreenShot.get_current_speed())
     Removed unused Follow_speed.get_current_speed() (because now use ScreenShot.get_current_speed())
+
+3/20/2022
+### screen_shot.py
+
+
