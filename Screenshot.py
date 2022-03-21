@@ -15,7 +15,10 @@ class ScreenShot:
         self.image = None
         # cache - keep all cache values
         self.cache = {}
-        pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files/Tesseract-OCR/tesseract.exe'
+        # cache digit image
+        self.digit_image = [cv2.imread(f'distance_num/{num}.png') for num in range(10)]
+
+        # pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files/Tesseract-OCR/tesseract.exe'
 
     def remove_all_cache(self):
         self.cache = {}
@@ -133,7 +136,7 @@ class ScreenShot:
     def get_min_of_values(self,mon):
         min = [0,100000000]
         for num in range(10):
-            result = self.compare_to_existing_image(cv2.imread(f'distance_num/{num}.png'),mon)
+            result = self.compare_to_existing_image(self.digit_image[num],mon)
             if result < min[1]:
                 min = [num,float(result)]
         return min
