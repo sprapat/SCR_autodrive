@@ -48,4 +48,14 @@ Fix bug of Autodrive.print_train_info() running screen_shot.is_approaching_stati
 3/20/2022
 ### screen_shot.py
 
+3/21/2022
+self.loading อาจจะไม่จำเป็น
+ถ้าอ่านเอาจาก need_load กับ need_close โดยตรง
+เราก็จะไม่จำเป็นต้องมีข้อมูลชุดนี้อีก
+
+แล้วไปแทนที่ self.loading ด้วยข้อมูลอื่นแทน
+
+ดูแล้ว change_speed กับ follow_speed น่าจะยุบมารวมใน Autodrive ได้
+เพราะดูชื่อแล้วไม่เหมือนเป็น class หรือ object
+ยังไม่ได้ implement ใส่ไว้เป็น plan เอาไว้ก่อน
 

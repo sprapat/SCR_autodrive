@@ -3,6 +3,12 @@ import numpy as np
 import cv2
 import pytesseract
 
+# constant
+YELLOW = [0, 190, 255]
+RED = [0, 0, 255]
+GREEN = [0,255,0]
+WHITE = [255,255,255]
+
 class ScreenShot:
     """This class represents screen shot and we can ask information from screen shot"""
     def __init__(self):
@@ -68,15 +74,15 @@ class ScreenShot:
     #one use
     def get_signal_aspect(self):
         """Return signal aspect as string"""
-        if self.get_color([940, 10, 1302, 10], [0, 190, 255]):
+        if self.get_color([940, 10, 1302, 10], YELLOW):
             return 'double yellow'
-        elif self.get_color([980, 10, 1302, 10], [0, 190, 255]):
+        elif self.get_color([980, 10, 1302, 10], YELLOW):
             return 'yellow'
-        elif self.get_color([1000, 10, 1302, 10], [0, 0, 255]):
+        elif self.get_color([1000, 10, 1302, 10], RED):
             return 'red'
-        elif self.get_color([960, 10, 1300, 10], [0,255,0]):
+        elif self.get_color([960, 10, 1300, 10], GREEN):
             return 'green'
-        elif self.get_color([960, 10, 1300, 10], [255,255,255]):
+        elif self.get_color([960, 10, 1300, 10], WHITE):
             return 'white'
         return 'out'
 
