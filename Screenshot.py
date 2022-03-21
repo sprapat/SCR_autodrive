@@ -158,21 +158,13 @@ class ScreenShot:
     #one use
     def get_speed_limit(self):
         if 'speed_limit' not in self.cache:
-            min = [0,100000000]
-            for speed_limit in [15,30,45,50,60,65,75,90,100,110,125]:
-                result = self.compare_to_existing_image(cv2.imread(f'speed_limits/{speed_limit}.png'),[970, 20, 950, 30], 200)
-                if result < min[1]:
-                    min = [speed_limit,float(result)]
-                    self.cache['speed_limit'] = min[0]
+            min = 100000000
+            for speed_limit in self.speed_limit_image:
+                similarity_score = self.compare_to_existing_image(self.speed_limit_image[speed_limit],[970, 20, 950, 30], 200)
+                if similarity_score < min:
+                    min = similarity_score
+                    self.cache['speed_limit'] =speed_limit
         return self.cache['speed_limit']
-
-        #     min = [0,100000000]
-        #     for speed_limit in [15,30,45,50,60,65,75,90,100,110,125]:
-        #         result = self.compare_to_existing_image(cv2.imread(f'speed_limits/{speed_limit}.png'),[970, 20, 950, 30])
-        #         if result < min[1]:
-        #             min = [speed_limit,float(result)]
-        # self.cache['speed_limit'] = min[0]
-        # return self.cache['speed_limit']
 
     #one use
     def get_current_speed(self, top_speed):
