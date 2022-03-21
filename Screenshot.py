@@ -15,9 +15,7 @@ class ScreenShot:
         # cache - keep all cache values
         self.cache = {}
         # cache digit image
-        self.digit_image = [cv2.imread(f'distance_num/{num}.png') for num in range(10)]
-
-        # pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files/Tesseract-OCR/tesseract.exe'
+        self.digit_image = [cv2.imread(f'distance_num/{num}.png') for num in range(10)]+[cv2.imread(f'distance_num/no_tens_digit.png')]
 
     def remove_all_cache(self):
         self.cache = {}
@@ -85,10 +83,10 @@ class ScreenShot:
     def get_distance_till_next_station1(self):
         if 'distance_till_next_station' not in self.cache:
             #with no 10th digit [990,30,693,6] [990,30,680,6]
-            #with 10th digit [990,30,712,6] [990,30,702,6] [990,30,689,6] [990,30,680,6] 
+            #with 10th digit [990,30,711,6] [990,30,702,6] [990,30,689,6] [990,30,680,6] 
             distance = 0
             #if the distance is x.xx instead of xx.xx
-            if self.get_min_of_values([990,30,711,6])[0] == 'no_10th_digit':
+            if self.get_min_of_values([990,30,711,6])[0] == 'no_tens_digit':
                 # check the x.Xx
                 print(.1)
                 distance += 0.1*self.get_min_of_values([990,30,693,6])[0]
@@ -136,10 +134,12 @@ class ScreenShot:
     def get_min_of_values(self,mon):
         min = [0,100000000]
 
-        for num in [0,1,2,3,4,5,6,7,8,9,'no_10th_digit']:
+        for num in range(11):
             result = self.compare_to_existing_image(self.digit_image[num],mon,50)
 
             if result < min[1]:
+                if num == 10: 
+                    num = 'no_tens_digit'
                 min = [num,float(result)]
         print(min)
         return min

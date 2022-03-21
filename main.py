@@ -18,7 +18,6 @@ class Autodrive:
         self.aspect = None
         self.screen_shot = ScreenShot()
         # Initialize value
-        # self.screen_shot.capture()
 
         # Flags
         self.signal_restricted_speed = False  
@@ -94,7 +93,6 @@ class Autodrive:
                 self.disable_control = True
             else:
                 self.disable_control = False
-            # print(self.screen_shot.need_load_passenger_action())
             if self.screen_shot.need_load_passenger_action():
                 
                 keyboard.press_and_release('t')

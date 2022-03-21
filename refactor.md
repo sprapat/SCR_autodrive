@@ -62,7 +62,7 @@ self.loading อาจจะไม่จำเป็น
 ยังไม่ได้ implement ใส่ไว้เป็น plan เอาไว้ก่อน
 =======
 ### ScreenShot.py
-* Fixed ScreenShot.get_distance_till_next_station1() bugs where when the distance is anchored at the left most point, meaning if the distance is 1 digit (1.23), the 1 will be at the same point as the 1 on if the distance is 2 digit (16.23).
+* Fixed ScreenShot.get_distance_till_next_station1() bugs where when the distance is anchored at the left most point, meaning if the distance is have ones digit (1.23), the 1 will be at the same point as the 1 on if the distance is tens digit (16.23).
 So I need seperate positions for all digits in each cases.
 * Removed unused methods (the old get_distance_till_next_station and OCR)
 * get the thresh in ScreenShot.compare_to_existing_image() to be a parameter rather than being hard coded (due to different images requiring different thresh)
