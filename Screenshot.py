@@ -15,10 +15,7 @@ class ScreenShot:
         # cache - keep all cache values
         self.cache = {}
         # cache digit image
-        self.digit_image = [cv2.imread(f'distance_num/{num}.png') for num in range(10)]
-        # cache speed limit image
-        self.speed_limit_image = {speed_limit:cv2.imread(f'speed_limits/{speed_limit}.png') for speed_limit in [15,30,45,50,60,65,75,90,100,110,125]}      
-        # pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files/Tesseract-OCR/tesseract.exe'
+        self.digit_image = [cv2.imread(f'distance_num/{num}.png') for num in range(10)]+[cv2.imread(f'distance_num/no_tens_digit.png')]
 
     def remove_all_cache(self):
         self.cache = {}
@@ -86,10 +83,10 @@ class ScreenShot:
     def get_distance_till_next_station1(self):
         if 'distance_till_next_station' not in self.cache:
             #with no 10th digit [990,30,693,6] [990,30,680,6]
-            #with 10th digit [990,30,712,6] [990,30,702,6] [990,30,689,6] [990,30,680,6] 
+            #with 10th digit [990,30,711,6] [990,30,702,6] [990,30,689,6] [990,30,680,6] 
             distance = 0
             #if the distance is x.xx instead of xx.xx
-            if self.get_min_of_values([990,30,711,6])[0] == 'no_10th_digit':
+            if self.get_min_of_values([990,30,711,6])[0] == 'no_tens_digit':
                 # check the x.Xx
                 print(.1)
                 distance += 0.1*self.get_min_of_values([990,30,693,6])[0]
@@ -137,13 +134,16 @@ class ScreenShot:
     def get_min_of_values(self,mon):
         min = [0,100000000]
 
-        for num in [0,1,2,3,4,5,6,7,8,9,'no_10th_digit']:
+        for num in range(11):
             result = self.compare_to_existing_image(self.digit_image[num],mon,50)
 
             if result < min[1]:
+                if num == 10: 
+                    num = 'no_tens_digit'
                 min = [num,float(result)]
         print(min)
         return min
+
 
     #one use
     def need_load_passenger_action(self):
@@ -158,12 +158,12 @@ class ScreenShot:
     #one use
     def get_speed_limit(self):
         if 'speed_limit' not in self.cache:
-            min = 100000000
-            for speed_limit in self.speed_limit_image:
-                similarity_score = self.compare_to_existing_image(self.speed_limit_image[speed_limit],[970, 20, 950, 30], 200)
-                if similarity_score < min:
-                    min = similarity_score
-                    self.cache['speed_limit'] =speed_limit
+            min = [0,100000000]
+            for speed_limit in [15,30,45,50,60,65,75,90,100,110,125]:
+                result = self.compare_to_existing_image(cv2.imread(f'speed_limits/{speed_limit}.png'),[970, 20, 950, 30], 200)
+                if result < min[1]:
+                    min = [speed_limit,float(result)]
+        self.cache['speed_limit'] = min[0]
         return self.cache['speed_limit']
 
     #one use
