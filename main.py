@@ -2,9 +2,8 @@ from follow_speed_limit import Follow_speed,Change_speed
 import keyboard
 from sys import argv
 from Screenshot import ScreenShot
-from line_profiler import LineProfiler
 from time import sleep
-from datetime import datetime, timedelta
+from datetime import datetime
 
 class Autodrive:
     SIGNAL_SPEED_DICT = {'yellow':45, 'red':0, 'double yellow':False, 'green':False, 'white':False, 'out':False}
@@ -91,6 +90,7 @@ class Autodrive:
             self.aspect = self.screen_shot.get_signal_aspect()           
 
             if self.screen_shot.is_at_station():
+                print('is at station')
                 self.disable_control = True
             else:
                 self.disable_control = False
