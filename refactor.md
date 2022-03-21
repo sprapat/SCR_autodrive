@@ -51,6 +51,16 @@ Remove the use of OCR in favor of image similarity, I might edit the threash for
 And more testing tomorrow needed.
 
 3/21/2022
+self.loading อาจจะไม่จำเป็น
+ถ้าอ่านเอาจาก need_load กับ need_close โดยตรง
+เราก็จะไม่จำเป็นต้องมีข้อมูลชุดนี้อีก
+
+แล้วไปแทนที่ self.loading ด้วยข้อมูลอื่นแทน
+
+ดูแล้ว change_speed กับ follow_speed น่าจะยุบมารวมใน Autodrive ได้
+เพราะดูชื่อแล้วไม่เหมือนเป็น class หรือ object
+ยังไม่ได้ implement ใส่ไว้เป็น plan เอาไว้ก่อน
+=======
 ### ScreenShot.py
 * Fixed ScreenShot.get_distance_till_next_station1() bugs where when the distance is anchored at the left most point, meaning if the distance is 1 digit (1.23), the 1 will be at the same point as the 1 on if the distance is 2 digit (16.23).
 So I need seperate positions for all digits in each cases.
@@ -60,4 +70,5 @@ So I need seperate positions for all digits in each cases.
 *Remove pytessaract import and command location set
 ## Other
 * Change all distance_num photos
+
 

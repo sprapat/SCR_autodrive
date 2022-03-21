@@ -2,12 +2,22 @@ import pyautogui
 import numpy as np
 import cv2
 
+# constant
+YELLOW = [0, 190, 255]
+RED = [0, 0, 255]
+GREEN = [0,255,0]
+WHITE = [255,255,255]
+
 class ScreenShot:
     """This class represents screen shot and we can ask information from screen shot"""
     def __init__(self):
         self.image = None
         # cache - keep all cache values
         self.cache = {}
+        # cache digit image
+        self.digit_image = [cv2.imread(f'distance_num/{num}.png') for num in range(10)]
+
+        # pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files/Tesseract-OCR/tesseract.exe'
 
     def remove_all_cache(self):
         self.cache = {}
@@ -45,15 +55,15 @@ class ScreenShot:
     #one use
     def get_signal_aspect(self):
         """Return signal aspect as string"""
-        if self.get_color([940, 10, 1302, 10], [0, 190, 255]):
+        if self.get_color([940, 10, 1302, 10], YELLOW):
             return 'double yellow'
-        elif self.get_color([980, 10, 1302, 10], [0, 190, 255]):
+        elif self.get_color([980, 10, 1302, 10], YELLOW):
             return 'yellow'
-        elif self.get_color([1000, 10, 1302, 10], [0, 0, 255]):
+        elif self.get_color([1000, 10, 1302, 10], RED):
             return 'red'
-        elif self.get_color([960, 10, 1300, 10], [0,255,0]):
+        elif self.get_color([960, 10, 1300, 10], GREEN):
             return 'green'
-        elif self.get_color([960, 10, 1300, 10], [255,255,255]):
+        elif self.get_color([960, 10, 1300, 10], WHITE):
             return 'white'
         return 'out'
 
@@ -125,8 +135,10 @@ class ScreenShot:
 
     def get_min_of_values(self,mon):
         min = [0,100000000]
+
         for num in [0,1,2,3,4,5,6,7,8,9,'no_10th_digit']:
-            result = self.compare_to_existing_image(cv2.imread(f'distance_num/{num}.png'), mon, 50)
+            result = self.compare_to_existing_image(self.digit_image[num],mon,50)
+
             if result < min[1]:
                 min = [num,float(result)]
         print(min)
