@@ -46,6 +46,18 @@ Fix bug of Autodrive.print_train_info() running screen_shot.is_approaching_stati
     Removed unused Follow_speed.get_current_speed() (because now use ScreenShot.get_current_speed())
 
 3/20/2022
-### screen_shot.py
+### ScreenShot.py
+Remove the use of OCR in favor of image similarity, I might edit the threash for more accurate result.
+And more testing tomorrow needed.
 
+3/21/2022
+### ScreenShot.py
+* Fixed ScreenShot.get_distance_till_next_station1() bugs where when the distance is anchored at the left most point, meaning if the distance is 1 digit (1.23), the 1 will be at the same point as the 1 on if the distance is 2 digit (16.23).
+So I need seperate positions for all digits in each cases.
+* Removed unused methods (the old get_distance_till_next_station and OCR)
+* get the thresh in ScreenShot.compare_to_existing_image() to be a parameter rather than being hard coded (due to different images requiring different thresh)
+* Create ScreenShot.get_min_of_values(mon) for loop of every element and return which one have the lowest image similarity err
+*Remove pytessaract import and command location set
+## Other
+* Change all distance_num photos
 
