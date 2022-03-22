@@ -1,4 +1,9 @@
-import pyautogui
+# Set value to True to work on a machine without SCR program
+PAPA_MACHINE = False
+
+if not PAPA_MACHINE:
+    import pyautogui
+
 import numpy as np
 import cv2
 
@@ -12,6 +17,7 @@ BINARY_THRESHOLD = 50
 
 """
 Utility codes
+=============
 may extract to another file later but at the moment
 we only use these functions in ScreenShot class
 """
@@ -47,9 +53,12 @@ class ScreenShot:
         self.cache = {}
 
     def capture(self):
-        self.image = cv2.cvtColor(np.array(pyautogui.screenshot()), cv2.COLOR_RGB2BGR)
+        if PAPA_MACHINE:
+            self.image = cv2.imread('screenshot/Screenshot 2022-03-22 11-40-10.png')
+            # self.image = cv2.cvtColor(np.array(pyautogui.screenshot()), cv2.COLOR_RGB2BGR)            
+        else:
+            self.image = cv2.cvtColor(np.array(pyautogui.screenshot()), cv2.COLOR_RGB2BGR)
         self.remove_all_cache()
-        return 'yes'
 
     def get_color(self, mon, color):
         cropped_image = self.image[mon[0]+5:mon[0]+6, mon[2]+5:mon[2]+6]
@@ -58,9 +67,11 @@ class ScreenShot:
                 return True
         return False
 
-    def compare_to_existing_image(self,old_image,mon, thresh):
+    def compare_to_existing_image(self,old_image, mon, thresh):
         cropped_new_image = self.image[mon[0]:mon[0]+mon[1], mon[2]:mon[2]+mon[3]]
         old_bw_image = cv2.threshold(old_image, thresh, 255, cv2.THRESH_BINARY)[1]
+        cv2.imwrite('img1.png', self.image)
+        cv2.imwrite('img2.png', cropped_new_image)
         new_bw_image = cv2.threshold(cropped_new_image, thresh, 255, cv2.THRESH_BINARY)[1]
         return compare_image_similarity(old_bw_image, new_bw_image)
 
@@ -87,7 +98,7 @@ class ScreenShot:
     def is_approaching_station(self):
         if 'is_approaching_station' not in self.cache:
             distance = self.get_distance_till_next_station1()
-            print(distance)
+            # print(distance)
             self.cache['is_approaching_station'] = (distance is not False) and (distance <= 0.2)
         return self.cache['is_approaching_station']
 
@@ -146,13 +157,12 @@ class ScreenShot:
                 else:
                     distance = False
             #change to 10th digit
-            print(distance)
+            print('distance = ', distance)
             self.cache['distance_till_next_station'] = distance
         return self.cache['distance_till_next_station']
 
     def get_min_of_values(self,mon):
         min = [0,100000000]
-
         for num in range(11):
             result = self.compare_to_existing_image(self.digit_image[num],mon,50)
 

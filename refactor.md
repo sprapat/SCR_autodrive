@@ -77,3 +77,7 @@ So I need seperate positions for all digits in each cases.
 * create a few utility functions
 * at first, I think there is only 1 threshold to create a binary image but it turns out that there are more than one. I will try to understand the code and refactor accordingly.
 * so I decided to move the cv2.imread from both need_load_passenger_action and need_close_door because we shouldn't reread the file with every comparison. We should read these files once in __init__ and use it later.
+* implementing PAPA_MACHINE condition to make code run on papa's machine. (instead of using capturing screen, use saved screenshot instead)
+* get_distance_till_next_station1 is a bit strange that not only return distance but also can return False
+  code is also complicated. From what I read, the method returns False when the distance is more than 0.2. I think this part can be done somewhere else.
+* then I think that perhaps I can use namedtuple to easier understand the mon (4-member list of coordinate and size).

@@ -79,7 +79,7 @@ class Autodrive:
         while True:
             before_start_timestamp = datetime.now()
             self.screen_shot.capture()
-            self.print_train_info()
+            # self.print_train_info()
             if self.screen_shot.is_required_AWS_acknowledge():
                 self.acknowledge_AWS()
                 self.have_AWS = True
