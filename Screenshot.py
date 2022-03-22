@@ -8,6 +8,14 @@ RED = [0, 0, 255]
 GREEN = [0,255,0]
 WHITE = [255,255,255]
 
+def compare_image_similarity(img1, img2) -> float:
+    """compare 2 images as numpy array and return mean square error
+       assume that both images are the same size
+    """
+    result = np.sum((img1.astype('float') - img2.astype('float')) ** 2)
+    result /= float(img1.shape[0] * img1.shape[1])
+    return result
+
 class ScreenShot:
     """This class represents screen shot and we can ask information from screen shot"""
     def __init__(self):
@@ -18,7 +26,7 @@ class ScreenShot:
         self.digit_image = [cv2.imread(f'distance_num/{num}.png') for num in range(10)]+[cv2.imread(f'distance_num/no_tens_digit.png')]
         # cache speed limit image
         self.speed_limit_image = {speed_limit:cv2.imread(f'speed_limits/{speed_limit}.png') for speed_limit in [15,30,45,50,60,65,75,90,100,110,125]} 
-        
+
     def remove_all_cache(self):
         self.cache = {}
 
@@ -39,13 +47,14 @@ class ScreenShot:
         cropped_new_image = self.image[mon[0]:mon[0]+mon[1], mon[2]:mon[2]+mon[3]]
         old_bw_image = cv2.threshold(old_image, thresh, 255, cv2.THRESH_BINARY)[1]
         new_bw_image = cv2.threshold(cropped_new_image, thresh, 255, cv2.THRESH_BINARY)[1]
+        return compare_image_similarity(old_bw_image, new_bw_image)
         # cv2.imshow('image',new_bw_image)
         # cv2.waitKey()
         # cv2.imshow('o',old_bw_image)
         # cv2.waitKey()
-        err = np.sum((new_bw_image.astype('float') - old_bw_image.astype('float')) ** 2)
-        err /= float(new_bw_image.shape[0] * old_bw_image.shape[1])
-        return err
+        # err = np.sum((new_bw_image.astype('float') - old_bw_image.astype('float')) ** 2)
+        # err /= float(new_bw_image.shape[0] * old_bw_image.shape[1])
+        # return err
 
     def is_required_AWS_acknowledge(self):
         if 'is_required_AWS_acknowledge' not in self.cache:
