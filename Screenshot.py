@@ -1,11 +1,12 @@
 # Set value to True to work on a machine without SCR program
-PAPA_MACHINE = False
+PAPA_MACHINE = True
 
 if not PAPA_MACHINE:
     import pyautogui
 
 import numpy as np
 import cv2
+from collections import namedtuple
 
 # constant
 YELLOW = [0,190,255]
@@ -33,6 +34,10 @@ def compare_image_similarity(img1, img2) -> float:
 def convert_to_BW_image(img, threshold):
     """return binary image"""
     return cv2.threshold(img, threshold, 255, cv2.THRESH_BINARY)[1]
+
+# Define Pos as namedtuple
+# numpy array is in this format [height, width] = [y,x]
+Pos = namedtuple("Pos", "y x")
 
 class ScreenShot:
     """This class represents screen shot and we can ask information from screen shot"""
@@ -63,6 +68,10 @@ class ScreenShot:
     def get_color(self, mon, color):
         return np.array_equal(self.image[mon[0]+5, mon[2]+5], color)
 
+    def is_same_color(self, pos, color):
+        """return True if color at pos is the same as color in the parameter"""
+        return np.array_equal(self.image[pos.y, pos.x], color)
+
     def compare_to_existing_image(self,old_image, mon, thresh):
         cropped_new_image = self.image[mon[0]:mon[0]+mon[1], mon[2]:mon[2]+mon[3]]
         old_bw_image = convert_to_BW_image(old_image, thresh)
@@ -71,23 +80,35 @@ class ScreenShot:
 
     def is_required_AWS_acknowledge(self):
         if 'is_required_AWS_acknowledge' not in self.cache:
-            self.cache['is_required_AWS_acknowledge'] = not self.get_color([970, 10, 1262, 10], BLACK)
+            self.cache['is_required_AWS_acknowledge'] = not self.is_same_color(Pos(975, 1267), BLACK)
+            # self.cache['is_required_AWS_acknowledge'] = not self.get_color([970, 10, 1262, 10], BLACK)
         return self.cache['is_required_AWS_acknowledge']
 
     #one use
     def get_signal_aspect(self):
         """Return signal aspect as string"""
-        if self.get_color([940, 10, 1302, 10], YELLOW):
+        if self.is_same_color(Pos(945, 1307), YELLOW):
             return 'double yellow'
-        elif self.get_color([980, 10, 1302, 10], YELLOW):
+        if self.is_same_color(Pos(985, 1307), YELLOW):
             return 'yellow'
-        elif self.get_color([1000, 10, 1302, 10], RED):
+        if self.is_same_color(Pos(1005, 1307), RED):
             return 'red'
-        elif self.get_color([960, 10, 1300, 10], GREEN):
+        if self.is_same_color(Pos(965, 1305), GREEN):
             return 'green'
-        elif self.get_color([960, 10, 1300, 10], WHITE):
+        if self.is_same_color(Pos(965, 1305), WHITE):
             return 'white'
-        return 'out'
+        return 'out'            
+        # if self.get_color([940, 10, 1302, 10], YELLOW):
+        #     return 'double yellow'            
+        # elif self.get_color([980, 10, 1302, 10], YELLOW):
+        #     return 'yellow'
+        # elif self.get_color([1000, 10, 1302, 10], RED):
+        #     return 'red'
+        # elif self.get_color([960, 10, 1300, 10], GREEN):
+        #     return 'green'
+        # elif self.get_color([960, 10, 1300, 10], WHITE):
+        #     return 'white'
+        # return 'out'
 
     def is_approaching_station(self):
         if 'is_approaching_station' not in self.cache:
