@@ -40,8 +40,7 @@ class Autodrive:
         # TODO: under_signal_restriction is either False or String
         # This is a mixed value of different type.
         # We may change this later.
-
-        if self.signal_restricted_speed != False and (self.have_AWS == True or self.loading == True):
+        if type(self.signal_restricted_speed) != bool and self.signal_restricted_speed != False and (self.have_AWS == True or self.loading == True):
             return self.aspect
         elif self.signal_restricted_speed == False:
             return False
@@ -68,18 +67,20 @@ class Autodrive:
         current_speed = f'The train\'s current speed is: {self.follow_speed.current_speed}'
         code_speed = f'speed this code is following is: {self.follow_speed.following_speed}'
         speed_limit = f'the speed limit if the code is under signal restriction is: {self.speed_limit}'
+        signal_restricted_speed = f'the signal restricted speed is: {self.signal_restricted_speed}'
         is_under_signal_restriction = f'Is the code under signal restriction?: {self.under_signal_restriction}'
         next_signal_aspect = f'The next signal aspect is: {self.aspect}'
         approaching_station = f'approaching station?: {self.screen_shot.is_approaching_station()}'
         disabled_control = f'disabled control?: {self.disable_control}'
-        print(','.join([current_speed, code_speed, speed_limit, is_under_signal_restriction, next_signal_aspect, approaching_station, disabled_control]))
+        loading = f'is the train loading?: {self.loading}'
+        print(','.join([current_speed, code_speed, speed_limit, signal_restricted_speed, is_under_signal_restriction, next_signal_aspect, approaching_station, disabled_control, loading]))
 
     # @profile
     def start(self):
         while True:
             before_start_timestamp = datetime.now()
             self.screen_shot.capture()
-            # self.print_train_info()
+            self.print_train_info()
             if self.screen_shot.is_required_AWS_acknowledge():
                 self.acknowledge_AWS()
                 self.have_AWS = True
@@ -87,6 +88,8 @@ class Autodrive:
                 self.have_AWS = False     
 
             self.aspect = self.screen_shot.get_signal_aspect()           
+            self.signal_restricted_speed = self.SIGNAL_SPEED_DICT[self.aspect]
+            self.under_signal_restriction = self.is_under_signal_restriction()
 
             if self.screen_shot.is_at_station():
                 print('is at station')
@@ -94,7 +97,6 @@ class Autodrive:
             else:
                 self.disable_control = False
             if self.screen_shot.need_load_passenger_action():
-                
                 keyboard.press_and_release('t')
                 self.loading = True
             if self.screen_shot.need_close_door(self.under_signal_restriction):
@@ -110,8 +112,7 @@ class Autodrive:
             if speed_limit is not None:
                 self.speed_limit = speed_limit
                 
-            self.signal_restricted_speed = self.SIGNAL_SPEED_DICT[self.aspect]
-            self.under_signal_restriction = self.is_under_signal_restriction()
+            
 
             self.follow_speed.change_following_speed(self.determine_following_speed())
             self.change_speed()

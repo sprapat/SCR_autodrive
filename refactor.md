@@ -77,6 +77,12 @@ So I need seperate positions for all digits in each cases.
 * ScreenShot.get_distance_till_next_station1() -> ScreenShot.get_distance_till_next_station()
 * add 80 mph to speed_limits
 
+* ScreenShot.need_close_door() to check under_signal_restriction to not be red
+* use convert_to_BW_image()
+
+
+
+* 
 =======
 Papa note
 * create a few utility functions
@@ -87,5 +93,18 @@ Papa note
   code is also complicated. From what I read, the method returns False when the distance is more than 0.2. I think this part can be done somewhere else.
 * then I think that perhaps I can use namedtuple to easier understand the mon (4-member list of coordinate and size).
 
-* ScreenShot.need_close_door() to check under_signal_restriction to not be red
-* use convert_to_BW_image()
+### main.py
+ Dew's note
+* Change 
+
+
+self.signal_restricted_speed = self.SIGNAL_SPEED_DICT[self.aspect]
+self.under_signal_restriction = self.is_under_signal_restriction()
+
+    to be before 
+
+self.screen_shot.need_close_door(self.under_signal_restriction) 
+
+* add Autodrive.is_under_signal_restriction() if **type(self.signal_restricted_speed) != bool** and self.signal_restricted_speed != False and (self.have_AWS == True or self.loading == True): 
+because if self.signal_restricted_speed is equal to 0 then it would be equal to False
+* add more info in Autodrive.print_train_info()
