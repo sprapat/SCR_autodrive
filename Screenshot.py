@@ -184,10 +184,9 @@ class ScreenShot:
     #one use
     def need_close_door(self, under_signal_restriction):
         mon = [820,30,830,300]
-
         return under_signal_restriction != 'red' and \
-            ((self.compare_to_existing_image(self.close_doors1_image, mon, 200) < SIMILARITY_THRESHOLD) or \
-            (self.compare_to_existing_image(self.close_doors2_image, mon, 200)) < SIMILARITY_THRESHOLD)
+            ((self.compare_to_existing_image(self.close_doors1_image, mon, 200) < 5000) or \
+            (self.compare_to_existing_image(self.close_doors2_image, mon, 200)) < 5000)
     
     #one use
     def get_speed_limit(self):
