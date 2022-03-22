@@ -29,7 +29,7 @@ def compare_image_similarity(img1, img2) -> float:
     result /= float(img1.shape[0] * img1.shape[1])
     return result
 
-def convert_to_BW_image(self, img, threshold):
+def convert_to_BW_image(img, threshold):
     """return binary image"""
     return cv2.threshold(img, threshold, 255, cv2.THRESH_BINARY)[1]
 
@@ -42,7 +42,7 @@ class ScreenShot:
         # cache digit image
         self.digit_image = [cv2.imread(f'distance_num/{num}.png') for num in range(10)]+[cv2.imread(f'distance_num/no_tens_digit.png')]
         # cache speed limit image
-        self.speed_limit_image = {speed_limit:cv2.imread(f'speed_limits/{speed_limit}.png') for speed_limit in [15,30,45,50,60,65,75,90,100,110,125]} 
+        self.speed_limit_image = {speed_limit:cv2.imread(f'speed_limits/{speed_limit}.png') for speed_limit in [15,30,45,50,60,65,75,80,90,100,110,125]} 
         # cache other images for comparison
         self.ready_to_load1_image = cv2.imread('need_to_load_passenger_or_close_doors/ready_to_load1.png')
         self.ready_to_load2_image = cv2.imread('need_to_load_passenger_or_close_doors/ready_to_load2.png')
@@ -69,10 +69,8 @@ class ScreenShot:
 
     def compare_to_existing_image(self,old_image, mon, thresh):
         cropped_new_image = self.image[mon[0]:mon[0]+mon[1], mon[2]:mon[2]+mon[3]]
-        old_bw_image = cv2.threshold(old_image, thresh, 255, cv2.THRESH_BINARY)[1]
-        cv2.imwrite('img1.png', self.image)
-        cv2.imwrite('img2.png', cropped_new_image)
-        new_bw_image = cv2.threshold(cropped_new_image, thresh, 255, cv2.THRESH_BINARY)[1]
+        old_bw_image = convert_to_BW_image(old_image, thresh)
+        new_bw_image = convert_to_BW_image(cropped_new_image, thresh)
         return compare_image_similarity(old_bw_image, new_bw_image)
 
     def is_required_AWS_acknowledge(self):
@@ -97,23 +95,24 @@ class ScreenShot:
 
     def is_approaching_station(self):
         if 'is_approaching_station' not in self.cache:
-            distance = self.get_distance_till_next_station1()
-            # print(distance)
+            distance = self.get_distance_till_next_station()
+            print(distance)
             self.cache['is_approaching_station'] = (distance is not False) and (distance <= 0.2)
         return self.cache['is_approaching_station']
 
     #one use
     def is_at_station(self):
-        return (self.get_distance_till_next_station1() is not False) and (self.get_distance_till_next_station1() == 0.0)
+        return (self.get_distance_till_next_station() is not False) and (self.get_distance_till_next_station() == 0.0)
 
     def get_loading_advisory_message(self):
         if 'loading_advisory_message' not in self.cache:
             self.cache['loading_advisory_message'] = self.OCR([820,30,830,300],50,True)
         return self.cache['loading_advisory_message']
-    def get_distance_till_next_station1(self):
+
+    def get_distance_till_next_station(self):
         if 'distance_till_next_station' not in self.cache:
-            #with no 10th digit [990,30,693,6] [990,30,680,6]
-            #with 10th digit [990,30,711,6] [990,30,702,6] [990,30,689,6] [990,30,680,6] 
+            #with no tens digit [990,30,693,6] [990,30,680,6]
+            #with tens digit [990,30,711,6] [990,30,702,6] [990,30,689,6] [990,30,680,6] 
             distance = 0
             #if the distance is x.xx instead of xx.xx
             if self.get_min_of_values([990,30,711,6])[0] == 'no_tens_digit':
@@ -156,8 +155,8 @@ class ScreenShot:
                         distance = False
                 else:
                     distance = False
-            #change to 10th digit
-            print('distance = ', distance)
+            #change to tens digit
+            print(distance)
             self.cache['distance_till_next_station'] = distance
         return self.cache['distance_till_next_station']
 
@@ -173,7 +172,6 @@ class ScreenShot:
         print(min)
         return min
 
-
     #one use
     def need_load_passenger_action(self):
         mon = [820,30,830,300]
@@ -183,7 +181,9 @@ class ScreenShot:
     #one use
     def need_close_door(self, under_signal_restriction):
         mon = [820,30,830,300]
-        return ((self.compare_to_existing_image(self.close_doors1_image, mon, 200) < 1000) or \
+
+        return under_signal_restriction != 'red' and \
+            ((self.compare_to_existing_image(self.close_doors1_image, mon, 200) < 1000) or \
             (self.compare_to_existing_image(self.close_doors2_image, mon, 200)) < 1000)
     
     #one use
@@ -194,18 +194,8 @@ class ScreenShot:
                 similarity_score = self.compare_to_existing_image(self.speed_limit_image[speed_limit],[970, 20, 950, 30], 200)
                 if similarity_score < min:
                     min = similarity_score
-                    self.cache['speed_limit'] =speed_limit
+                    self.cache['speed_limit'] = speed_limit
         return self.cache['speed_limit']
-
-    # def get_speed_limit(self):
-    #     if 'speed_limit' not in self.cache:
-    #         min = [0,100000000]
-    #         for speed_limit in [15,30,45,50,60,65,75,90,100,110,125]:
-    #             result = self.compare_to_existing_image(cv2.imread(f'speed_limits/{speed_limit}.png'),[970, 20, 950, 30], 200)
-    #             if result < min[1]:
-    #                 min = [speed_limit,float(result)]
-    #     self.cache['speed_limit'] = min[0]
-    #     return self.cache['speed_limit']
 
     #one use
     def get_current_speed(self, top_speed):
