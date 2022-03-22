@@ -72,6 +72,14 @@ So I need seperate positions for all digits in each cases.
 * Change all distance_num photos
 
 3/22/2022
+
 ### Screenshot.py
 * ScreenShot.get_distance_till_next_station1() -> ScreenShot.get_distance_till_next_station()
 * add 80 mph to speed_limits
+
+=======
+
+* create a few utility functions
+* at first, I think there is only 1 threshold to create a binary image but it turns out that there are more than one. I will try to understand the code and refactor accordingly.
+* so I decided to move the cv2.imread from both need_load_passenger_action and need_close_door because we shouldn't reread the file with every comparison. We should read these files once in __init__ and use it later.
+

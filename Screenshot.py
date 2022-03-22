@@ -8,6 +8,25 @@ RED = [0, 0, 255]
 GREEN = [0,255,0]
 WHITE = [255,255,255]
 
+BINARY_THRESHOLD = 50
+
+"""
+Utility codes
+may extract to another file later but at the moment
+we only use these functions in ScreenShot class
+"""
+def compare_image_similarity(img1, img2) -> float:
+    """compare 2 images as numpy array and return mean square error
+       assume that both images are the same size
+    """
+    result = np.sum((img1.astype('float') - img2.astype('float')) ** 2)
+    result /= float(img1.shape[0] * img1.shape[1])
+    return result
+
+def convert_to_BW_image(self, img, threshold):
+    """return binary image"""
+    return cv2.threshold(img, threshold, 255, cv2.THRESH_BINARY)[1]
+
 class ScreenShot:
     """This class represents screen shot and we can ask information from screen shot"""
     def __init__(self):
@@ -16,7 +35,14 @@ class ScreenShot:
         self.cache = {}
         # cache digit image
         self.digit_image = [cv2.imread(f'distance_num/{num}.png') for num in range(10)]+[cv2.imread(f'distance_num/no_tens_digit.png')]
-
+        # cache speed limit image
+        self.speed_limit_image = {speed_limit:cv2.imread(f'speed_limits/{speed_limit}.png') for speed_limit in [15,30,45,50,60,65,75,80,90,100,110,125]} 
+        # cache other images for comparison
+        self.ready_to_load1_image = cv2.imread('need_to_load_passenger_or_close_doors/ready_to_load1.png')
+        self.ready_to_load2_image = cv2.imread('need_to_load_passenger_or_close_doors/ready_to_load2.png')
+        self.close_doors1_image = cv2.imread('need_to_load_passenger_or_close_doors/close_doors1.png')
+        self.close_doors2_image = cv2.imread('need_to_load_passenger_or_close_doors/close_doors2.png')
+    
     def remove_all_cache(self):
         self.cache = {}
 
@@ -32,17 +58,10 @@ class ScreenShot:
         return False
 
     def compare_to_existing_image(self,old_image,mon, thresh):
-        mon = mon
         cropped_new_image = self.image[mon[0]:mon[0]+mon[1], mon[2]:mon[2]+mon[3]]
         old_bw_image = cv2.threshold(old_image, thresh, 255, cv2.THRESH_BINARY)[1]
         new_bw_image = cv2.threshold(cropped_new_image, thresh, 255, cv2.THRESH_BINARY)[1]
-        # cv2.imshow('image',new_bw_image)
-        # cv2.waitKey()
-        # cv2.imshow('o',old_bw_image)
-        # cv2.waitKey()
-        err = np.sum((new_bw_image.astype('float') - old_bw_image.astype('float')) ** 2)
-        err /= float(new_bw_image.shape[0] * old_bw_image.shape[1])
-        return err
+        return compare_image_similarity(old_bw_image, new_bw_image)
 
     def is_required_AWS_acknowledge(self):
         if 'is_required_AWS_acknowledge' not in self.cache:
@@ -147,23 +166,35 @@ class ScreenShot:
     #one use
     def need_load_passenger_action(self):
         mon = [820,30,830,300]
-        return ((self.compare_to_existing_image(cv2.imread('need_to_load_passenger_or_close_doors/ready_to_load1.png'), mon, 200) < 1000) or (self.compare_to_existing_image(cv2.imread('need_to_load_passenger_or_close_doors/ready_to_load2.png'),mon, 200)) < 1000)
+        return ((self.compare_to_existing_image(self.ready_to_load1_image, mon, 200) < 1000) or \
+            (self.compare_to_existing_image(self.ready_to_load2_image,mon, 200)) < 1000)
 
     #one use
     def need_close_door(self, under_signal_restriction):
         mon = [820,30,830,300]
-        return ((self.compare_to_existing_image(cv2.imread('need_to_load_passenger_or_close_doors/close_doors1.png'),mon, 200) < 1000) or (self.compare_to_existing_image(cv2.imread('need_to_load_passenger_or_close_doors/close_doors2.png'),mon, 200)) < 1000)
+        return ((self.compare_to_existing_image(self.close_doors1_image, mon, 200) < 1000) or \
+            (self.compare_to_existing_image(self.close_doors2_image, mon, 200)) < 1000)
     
     #one use
     def get_speed_limit(self):
         if 'speed_limit' not in self.cache:
-            min = [0,100000000]
-            for speed_limit in [15,30,45,50,60,65,75,80,90,100,110,125]:
-                result = self.compare_to_existing_image(cv2.imread(f'speed_limits/{speed_limit}.png'),[970, 20, 950, 30], 200)
-                if result < min[1]:
-                    min = [speed_limit,float(result)]
-        self.cache['speed_limit'] = min[0]
+            min = 100000000
+            for speed_limit in self.speed_limit_image:
+                similarity_score = self.compare_to_existing_image(self.speed_limit_image[speed_limit],[970, 20, 950, 30], 200)
+                if similarity_score < min:
+                    min = similarity_score
+                    self.cache['speed_limit'] =speed_limit
         return self.cache['speed_limit']
+
+    # def get_speed_limit(self):
+    #     if 'speed_limit' not in self.cache:
+    #         min = [0,100000000]
+    #         for speed_limit in [15,30,45,50,60,65,75,90,100,110,125]:
+    #             result = self.compare_to_existing_image(cv2.imread(f'speed_limits/{speed_limit}.png'),[970, 20, 950, 30], 200)
+    #             if result < min[1]:
+    #                 min = [speed_limit,float(result)]
+    #     self.cache['speed_limit'] = min[0]
+    #     return self.cache['speed_limit']
 
     #one use
     def get_current_speed(self, top_speed):
