@@ -8,10 +8,11 @@ import numpy as np
 import cv2
 
 # constant
-YELLOW = [0, 190, 255]
-RED = [0, 0, 255]
+YELLOW = [0,190,255]
+RED = [0,0,255]
 GREEN = [0,255,0]
 WHITE = [255,255,255]
+BLACK = [0,0,0]
 
 BINARY_THRESHOLD = 50
 
@@ -55,17 +56,12 @@ class ScreenShot:
     def capture(self):
         if PAPA_MACHINE:
             self.image = cv2.imread('screenshot/Screenshot 2022-03-22 11-40-10.png')
-            # self.image = cv2.cvtColor(np.array(pyautogui.screenshot()), cv2.COLOR_RGB2BGR)            
         else:
             self.image = cv2.cvtColor(np.array(pyautogui.screenshot()), cv2.COLOR_RGB2BGR)
         self.remove_all_cache()
 
     def get_color(self, mon, color):
-        cropped_image = self.image[mon[0]+5:mon[0]+6, mon[2]+5:mon[2]+6]
-        # cv2.imwrite('output.png',cropped_image)
-        if [a for a in cropped_image[0, 0]] == color:
-                return True
-        return False
+        return np.array_equal(self.image[mon[0]+5, mon[2]+5], color)
 
     def compare_to_existing_image(self,old_image, mon, thresh):
         cropped_new_image = self.image[mon[0]:mon[0]+mon[1], mon[2]:mon[2]+mon[3]]
@@ -75,7 +71,7 @@ class ScreenShot:
 
     def is_required_AWS_acknowledge(self):
         if 'is_required_AWS_acknowledge' not in self.cache:
-            self.cache['is_required_AWS_acknowledge'] = not self.get_color([970, 10, 1262, 10], [0,0,0])
+            self.cache['is_required_AWS_acknowledge'] = not self.get_color([970, 10, 1262, 10], BLACK)
         return self.cache['is_required_AWS_acknowledge']
 
     #one use
