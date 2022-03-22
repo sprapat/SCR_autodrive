@@ -23,7 +23,6 @@ class ScreenShot:
     def capture(self):
         self.image = cv2.cvtColor(np.array(pyautogui.screenshot()), cv2.COLOR_RGB2BGR)
         self.remove_all_cache()
-        return 'yes'
 
     def get_color(self, mon, color):
         cropped_image = self.image[mon[0]+5:mon[0]+6, mon[2]+5:mon[2]+6]
@@ -67,23 +66,24 @@ class ScreenShot:
 
     def is_approaching_station(self):
         if 'is_approaching_station' not in self.cache:
-            distance = self.get_distance_till_next_station1()
+            distance = self.get_distance_till_next_station()
             print(distance)
             self.cache['is_approaching_station'] = (distance is not False) and (distance <= 0.2)
         return self.cache['is_approaching_station']
 
     #one use
     def is_at_station(self):
-        return (self.get_distance_till_next_station1() is not False) and (self.get_distance_till_next_station1() == 0.0)
+        return (self.get_distance_till_next_station() is not False) and (self.get_distance_till_next_station() == 0.0)
 
     def get_loading_advisory_message(self):
         if 'loading_advisory_message' not in self.cache:
             self.cache['loading_advisory_message'] = self.OCR([820,30,830,300],50,True)
         return self.cache['loading_advisory_message']
-    def get_distance_till_next_station1(self):
+
+    def get_distance_till_next_station(self):
         if 'distance_till_next_station' not in self.cache:
-            #with no 10th digit [990,30,693,6] [990,30,680,6]
-            #with 10th digit [990,30,711,6] [990,30,702,6] [990,30,689,6] [990,30,680,6] 
+            #with no tens digit [990,30,693,6] [990,30,680,6]
+            #with tens digit [990,30,711,6] [990,30,702,6] [990,30,689,6] [990,30,680,6] 
             distance = 0
             #if the distance is x.xx instead of xx.xx
             if self.get_min_of_values([990,30,711,6])[0] == 'no_tens_digit':
@@ -126,7 +126,7 @@ class ScreenShot:
                         distance = False
                 else:
                     distance = False
-            #change to 10th digit
+            #change to tens digit
             print(distance)
             self.cache['distance_till_next_station'] = distance
         return self.cache['distance_till_next_station']
@@ -144,7 +144,6 @@ class ScreenShot:
         print(min)
         return min
 
-
     #one use
     def need_load_passenger_action(self):
         mon = [820,30,830,300]
@@ -159,7 +158,7 @@ class ScreenShot:
     def get_speed_limit(self):
         if 'speed_limit' not in self.cache:
             min = [0,100000000]
-            for speed_limit in [15,30,45,50,60,65,75,90,100,110,125]:
+            for speed_limit in [15,30,45,50,60,65,75,80,90,100,110,125]:
                 result = self.compare_to_existing_image(cv2.imread(f'speed_limits/{speed_limit}.png'),[970, 20, 950, 30], 200)
                 if result < min[1]:
                     min = [speed_limit,float(result)]

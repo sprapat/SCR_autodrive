@@ -71,4 +71,7 @@ So I need seperate positions for all digits in each cases.
 ## Other
 * Change all distance_num photos
 
-
+3/22/2022
+### Screenshot.py
+* ScreenShot.get_distance_till_next_station1() -> ScreenShot.get_distance_till_next_station()
+* add 80 mph to speed_limits
