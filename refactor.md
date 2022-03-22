@@ -83,3 +83,5 @@ So I need seperate positions for all digits in each cases.
 * at first, I think there is only 1 threshold to create a binary image but it turns out that there are more than one. I will try to understand the code and refactor accordingly.
 * so I decided to move the cv2.imread from both need_load_passenger_action and need_close_door because we shouldn't reread the file with every comparison. We should read these files once in __init__ and use it later.
 
+* ScreenShot.need_close_door() to check under_signal_restriction to not be red
+* use convert_to_BW_image()
