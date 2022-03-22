@@ -42,7 +42,7 @@ class Autodrive:
         # We may change this later.
         if type(self.signal_restricted_speed) != bool and self.signal_restricted_speed != False and (self.have_AWS == True or self.loading == True):
             return self.aspect
-        elif self.type(self.signal_restricted_speed) == bool and self.signal_restricted_speed == False:
+        elif type(self.signal_restricted_speed) == bool and self.signal_restricted_speed == False:
             return False
 
     def acknowledge_AWS(self):

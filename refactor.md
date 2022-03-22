@@ -109,3 +109,4 @@ self.screen_shot.need_close_door(self.under_signal_restriction)
 *  add self.type(self.signal_restricted_speed) != bool and self.signal_restricted_speed != False to every "self.signal_restricted_speed != False"
 because if self.signal_restricted_speed is equal to 0 then it would be equal to False
 * add more info in Autodrive.print_train_info()
+*remove "self.type(self.signal_restricted_speed)" bug
