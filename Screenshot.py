@@ -8,6 +8,13 @@ RED = [0, 0, 255]
 GREEN = [0,255,0]
 WHITE = [255,255,255]
 
+BINARY_THRESHOLD = 50
+
+"""
+Utility codes
+may extract to another file later but at the moment
+we only use these functions in ScreenShot class
+"""
 def compare_image_similarity(img1, img2) -> float:
     """compare 2 images as numpy array and return mean square error
        assume that both images are the same size
@@ -15,6 +22,10 @@ def compare_image_similarity(img1, img2) -> float:
     result = np.sum((img1.astype('float') - img2.astype('float')) ** 2)
     result /= float(img1.shape[0] * img1.shape[1])
     return result
+
+def convert_to_BW_image(self, img, threshold):
+    """return binary image"""
+    return cv2.threshold(img, threshold, 255, cv2.THRESH_BINARY)[1]
 
 class ScreenShot:
     """This class represents screen shot and we can ask information from screen shot"""
