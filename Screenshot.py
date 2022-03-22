@@ -1,17 +1,24 @@
-import pyautogui
+# Set value to True to work on a machine without SCR program
+PAPA_MACHINE = False
+
+if not PAPA_MACHINE:
+    import pyautogui
+
 import numpy as np
 import cv2
 
 # constant
-YELLOW = [0, 190, 255]
-RED = [0, 0, 255]
+YELLOW = [0,190,255]
+RED = [0,0,255]
 GREEN = [0,255,0]
 WHITE = [255,255,255]
+BLACK = [0,0,0]
 
 BINARY_THRESHOLD = 50
 
 """
 Utility codes
+=============
 may extract to another file later but at the moment
 we only use these functions in ScreenShot class
 """
@@ -47,17 +54,16 @@ class ScreenShot:
         self.cache = {}
 
     def capture(self):
-        self.image = cv2.cvtColor(np.array(pyautogui.screenshot()), cv2.COLOR_RGB2BGR)
+        if PAPA_MACHINE:
+            self.image = cv2.imread('screenshot/Screenshot 2022-03-22 11-40-10.png')
+        else:
+            self.image = cv2.cvtColor(np.array(pyautogui.screenshot()), cv2.COLOR_RGB2BGR)
         self.remove_all_cache()
 
     def get_color(self, mon, color):
-        cropped_image = self.image[mon[0]+5:mon[0]+6, mon[2]+5:mon[2]+6]
-        # cv2.imwrite('output.png',cropped_image)
-        if [a for a in cropped_image[0, 0]] == color:
-                return True
-        return False
+        return np.array_equal(self.image[mon[0]+5, mon[2]+5], color)
 
-    def compare_to_existing_image(self,old_image,mon, thresh):
+    def compare_to_existing_image(self,old_image, mon, thresh):
         cropped_new_image = self.image[mon[0]:mon[0]+mon[1], mon[2]:mon[2]+mon[3]]
         old_bw_image = convert_to_BW_image(old_image, thresh)
         new_bw_image = convert_to_BW_image(cropped_new_image, thresh)
@@ -65,7 +71,7 @@ class ScreenShot:
 
     def is_required_AWS_acknowledge(self):
         if 'is_required_AWS_acknowledge' not in self.cache:
-            self.cache['is_required_AWS_acknowledge'] = not self.get_color([970, 10, 1262, 10], [0,0,0])
+            self.cache['is_required_AWS_acknowledge'] = not self.get_color([970, 10, 1262, 10], BLACK)
         return self.cache['is_required_AWS_acknowledge']
 
     #one use
@@ -152,7 +158,6 @@ class ScreenShot:
 
     def get_min_of_values(self,mon):
         min = [0,100000000]
-
         for num in range(11):
             result = self.compare_to_existing_image(self.digit_image[num],mon,50)
 
