@@ -112,8 +112,68 @@ because if self.signal_restricted_speed is equal to 0 then it would be equal to 
 *remove "self.type(self.signal_restricted_speed)" bug
 
 3/23/2022
+Papa's note
+### main.py
+back to main.py again and see whether the main loop in start method is clean.
+I'd like to remove self.have_AWS because we should be able to read this from screenshot.
+So I start to change self.have_AWS to self.screen_shot.is_required_AWS_acknowledge()
+> commit
 
+Similar to self.have_AWS, I think we can remove self.aspect as well.
+> commit
+
+Now, it's self.under_signal_restriction's turn to be removed.
+> commit
+
+The rest is a bit difficult for me to remove. Have to understand more about the code.
+Will add comment along the way.
+
+then I read method determine_following_speed.
+I see that I can simplify 'if clause' from this
+````
+# train is approaching station, maximum speed limit will be 45
+if self.screen_shot.is_approaching_station() == True:
+    if self.speed_limit < 45:
+        return self.speed_limit
+    return 45
+````
+to this
+````
+# train is approaching station, maximum speed limit will be 45
+if self.screen_shot.is_approaching_station() == True:
+    return min(self.speed_limit, 45)
+````
+> commit
+
+Then refactor determine_following_speed a bit more to make code look like this.
+````
+# if train is not approaching a station but under signal_restricted_speed, maximum speed limit will be self.signal_restricted_speed (can be less)
+if type(self.signal_restricted_speed) != bool and self.is_under_signal_restriction() != False:
+    return min(self.speed_limit, self.signal_restricted_speed)
+````
+
+I think that we have this long comparison
+`if type(self.signal_restricted_speed) != bool and self.is_under_signal_restriction() != False:`
+because self.signal_restricted_speed contains mixed type of value. It can be boolean or real speed value.
+I'll see whether I can make it separated.
+
+But I notice that self.disable_control seems to be a synonym of at_station.
+We can read it as if we are at station, we must disable control.
+
+So I replace all references to self.disable_control to self.screen_shot.is_at_station()
+
+> commit
+
+### is_under_signal_restriction
+is_under_signal_restriction should return either True or False.
+And if it's true, then we can ask for the signal restriction.
+
+When read the method is_under_signal_restriction(self), I have to understand self.signal_restricted_speed.
+Then I see the source of mixed value, it's **SIGNAL_SPEED_DICT**.
+=======
+Dew's note
 * Fix bugs created by yesterdays' "add self.type(self.signal_restricted_speed) != bool and **self.signal_restricted_speed != False** to every "self.signal_restricted_speed != False"" if the self.signal_restricted_speed is equal to 0 then it should satisfy but it doesn't because it still is equal to False,
 So today I remove **self.signal_restricted_speed != False** entirely so it just is self.type(self.signal_restricted_speed) != bool:
 
 * Add more info to print_train_info()
+
