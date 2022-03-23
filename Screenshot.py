@@ -1,11 +1,12 @@
 # Set value to True to work on a machine without SCR program
-PAPA_MACHINE = False
+PAPA_MACHINE = True
 
 if not PAPA_MACHINE:
     import pyautogui
 
 import numpy as np
 import cv2
+from collections import namedtuple
 
 # constant
 YELLOW = [0,190,255]
@@ -14,7 +15,7 @@ GREEN = [0,255,0]
 WHITE = [255,255,255]
 BLACK = [0,0,0]
 
-BINARY_THRESHOLD = 50
+SIMILARITY_THRESHOLD = 1000
 
 """
 Utility codes
@@ -33,6 +34,11 @@ def compare_image_similarity(img1, img2) -> float:
 def convert_to_BW_image(img, threshold):
     """return binary image"""
     return cv2.threshold(img, threshold, 255, cv2.THRESH_BINARY)[1]
+
+# Define Pos as namedtuple
+# numpy array is in this format [height, width] = [y,x]
+# Pos(100,20) means position at y=100, x=20
+Pos = namedtuple("Pos", "y x")
 
 class ScreenShot:
     """This class represents screen shot and we can ask information from screen shot"""
@@ -60,8 +66,9 @@ class ScreenShot:
             self.image = cv2.cvtColor(np.array(pyautogui.screenshot()), cv2.COLOR_RGB2BGR)
         self.remove_all_cache()
 
-    def get_color(self, mon, color):
-        return np.array_equal(self.image[mon[0]+5, mon[2]+5], color)
+    def is_same_color(self, pos, color):
+        """return True if color at pos is the same as color in the parameter"""
+        return np.array_equal(self.image[pos.y, pos.x], color)
 
     def compare_to_existing_image(self,old_image, mon, thresh):
         cropped_new_image = self.image[mon[0]:mon[0]+mon[1], mon[2]:mon[2]+mon[3]]
@@ -71,23 +78,23 @@ class ScreenShot:
 
     def is_required_AWS_acknowledge(self):
         if 'is_required_AWS_acknowledge' not in self.cache:
-            self.cache['is_required_AWS_acknowledge'] = not self.get_color([970, 10, 1262, 10], BLACK)
+            self.cache['is_required_AWS_acknowledge'] = not self.is_same_color(Pos(975, 1267), BLACK)
         return self.cache['is_required_AWS_acknowledge']
 
     #one use
     def get_signal_aspect(self):
         """Return signal aspect as string"""
-        if self.get_color([940, 10, 1302, 10], YELLOW):
+        if self.is_same_color(Pos(945, 1307), YELLOW):
             return 'double yellow'
-        elif self.get_color([980, 10, 1302, 10], YELLOW):
+        if self.is_same_color(Pos(985, 1307), YELLOW):
             return 'yellow'
-        elif self.get_color([1000, 10, 1302, 10], RED):
+        if self.is_same_color(Pos(1005, 1307), RED):
             return 'red'
-        elif self.get_color([960, 10, 1300, 10], GREEN):
+        if self.is_same_color(Pos(965, 1305), GREEN):
             return 'green'
-        elif self.get_color([960, 10, 1300, 10], WHITE):
+        if self.is_same_color(Pos(965, 1305), WHITE):
             return 'white'
-        return 'out'
+        return 'out'            
 
     def is_approaching_station(self):
         if 'is_approaching_station' not in self.cache:
@@ -171,13 +178,12 @@ class ScreenShot:
     #one use
     def need_load_passenger_action(self):
         mon = [820,30,830,300]
-        return ((self.compare_to_existing_image(self.ready_to_load1_image, mon, 200) < 1000) or \
-            (self.compare_to_existing_image(self.ready_to_load2_image,mon, 200)) < 1000)
+        return ((self.compare_to_existing_image(self.ready_to_load1_image, mon, 200) < SIMILARITY_THRESHOLD) or \
+            (self.compare_to_existing_image(self.ready_to_load2_image,mon, 200)) < SIMILARITY_THRESHOLD)
 
     #one use
     def need_close_door(self, under_signal_restriction):
         mon = [820,30,830,300]
-        print(self.compare_to_existing_image(self.close_doors2_image, mon, 200))
         return under_signal_restriction != 'red' and \
             ((self.compare_to_existing_image(self.close_doors1_image, mon, 200) < 5000) or \
             (self.compare_to_existing_image(self.close_doors2_image, mon, 200)) < 5000)
