@@ -47,14 +47,13 @@ class Autodrive:
         keyboard.press_and_release('q')
 
     def determine_following_speed(self):
-        # train is approaching station, maximum speed limit will be 45
+        # train is approaching a station, maximum speed limit will be 45 (can be less)
         if self.screen_shot.is_approaching_station() == True:
             return min(self.speed_limit, 45)
 
-        elif type(self.signal_restricted_speed) != bool and self.signal_restricted_speed != False and self.is_under_signal_restriction() != False:
-            if self.speed_limit < self.signal_restricted_speed:
-                return self.speed_limit
-            return self.signal_restricted_speed
+        # if train is not approaching a station but under signal_restricted_speed, maximum speed limit will be self.signal_restricted_speed (can be less)
+        if type(self.signal_restricted_speed) != bool and self.signal_restricted_speed != False and self.is_under_signal_restriction() != False:
+            return min(self.speed_limit, self.signal_restricted_speed)
             
         return self.speed_limit
 

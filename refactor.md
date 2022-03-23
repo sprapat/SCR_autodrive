@@ -129,14 +129,24 @@ Will add comment along the way.
 
 then I read method determine_following_speed.
 I see that I can simplify 'if clause' from this
-
+````
 # train is approaching station, maximum speed limit will be 45
 if self.screen_shot.is_approaching_station() == True:
     if self.speed_limit < 45:
         return self.speed_limit
     return 45
-
+````
 to this
+````
 # train is approaching station, maximum speed limit will be 45
 if self.screen_shot.is_approaching_station() == True:
     return min(self.speed_limit, 45)
+````
+> commit
+
+Then refactor determine_following_speed a bit more to make code look like this.
+````
+# if train is not approaching a station but under signal_restricted_speed, maximum speed limit will be self.signal_restricted_speed (can be less)
+if type(self.signal_restricted_speed) != bool and self.signal_restricted_speed != False and self.is_under_signal_restriction() != False:
+    return min(self.speed_limit, self.signal_restricted_speed)
+````
