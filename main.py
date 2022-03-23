@@ -19,11 +19,10 @@ class Autodrive:
 
         # Flags
         self.signal_restricted_speed = False  
-        self.disable_control = False             
         self.loading = False            
 
     def change_speed(self):
-        if self.last_current_speed == self.follow_speed.current_speed and self.disable_control == False and self.loading == False:
+        if self.last_current_speed == self.follow_speed.current_speed and self.screen_shot.is_at_station() == False and self.loading == False:
             self.follow_speed.change_speed()
             if self.last_current_speed == 0:
                 self.last_current_speed = 1
@@ -65,7 +64,7 @@ class Autodrive:
         is_under_signal_restriction = f'Is the code under signal restriction?: {self.is_under_signal_restriction()}'
         next_signal_aspect = f'The next signal aspect is: {self.screen_shot.get_signal_aspect()}'
         approaching_station = f'approaching station?: {self.screen_shot.is_approaching_station()}'
-        disabled_control = f'disabled control?: {self.disable_control}'
+        disabled_control = f'disabled control?: {self.screen_shot.is_at_station()}'
         loading = f'is the train loading?: {self.loading}'
         print(','.join([current_speed, code_speed, speed_limit, signal_restricted_speed, is_under_signal_restriction, next_signal_aspect, approaching_station, disabled_control, loading]))
 
@@ -79,11 +78,6 @@ class Autodrive:
                 self.acknowledge_AWS()
             self.signal_restricted_speed = self.SIGNAL_SPEED_DICT[self.screen_shot.get_signal_aspect()]
 
-            if self.screen_shot.is_at_station():
-                print('is at station')
-                self.disable_control = True
-            else:
-                self.disable_control = False
             if self.screen_shot.need_load_passenger_action():
                 keyboard.press_and_release('t')
                 self.loading = True

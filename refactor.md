@@ -150,3 +150,15 @@ Then refactor determine_following_speed a bit more to make code look like this.
 if type(self.signal_restricted_speed) != bool and self.signal_restricted_speed != False and self.is_under_signal_restriction() != False:
     return min(self.speed_limit, self.signal_restricted_speed)
 ````
+
+I think that we have this long comparison
+`if type(self.signal_restricted_speed) != bool and self.signal_restricted_speed != False and self.is_under_signal_restriction() != False:`
+because self.signal_restricted_speed contains mixed type of value. It can be boolean or real speed value.
+I'll see whether I can make it separated.
+
+But I notice that self.disable_control seems to be a synonym of at_station.
+We can read it as if we are at station, we must disable control.
+
+So I replace all references to self.disable_control to self.screen_shot.is_at_station()
+
+> commit
