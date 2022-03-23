@@ -15,7 +15,6 @@ class Autodrive:
         self.change_speed_obj = Change_speed(top_speed)
         self.follow_speed = Follow_speed(self.change_speed_obj)
         self.top_speed = top_speed
-        self.aspect = None
         self.screen_shot = ScreenShot()
         # Initialize value
 
@@ -40,7 +39,7 @@ class Autodrive:
         # This is a mixed value of different type.
         # We may change this later.
         if type(self.signal_restricted_speed) != bool and self.signal_restricted_speed != False and (self.screen_shot.is_required_AWS_acknowledge() == True or self.loading == True):
-            return self.aspect
+            return self.screen_shot.get_signal_aspect()
         elif type(self.signal_restricted_speed) == bool and self.signal_restricted_speed == False:
             return False
 
@@ -68,7 +67,7 @@ class Autodrive:
         speed_limit = f'the speed limit if the code is under signal restriction is: {self.speed_limit}'
         signal_restricted_speed = f'the signal restricted speed is: {self.signal_restricted_speed}'
         is_under_signal_restriction = f'Is the code under signal restriction?: {self.under_signal_restriction}'
-        next_signal_aspect = f'The next signal aspect is: {self.aspect}'
+        next_signal_aspect = f'The next signal aspect is: {self.screen_shot.get_signal_aspect()}'
         approaching_station = f'approaching station?: {self.screen_shot.is_approaching_station()}'
         disabled_control = f'disabled control?: {self.disable_control}'
         loading = f'is the train loading?: {self.loading}'
@@ -82,8 +81,7 @@ class Autodrive:
             self.print_train_info()
             if self.screen_shot.is_required_AWS_acknowledge():
                 self.acknowledge_AWS()
-            self.aspect = self.screen_shot.get_signal_aspect()           
-            self.signal_restricted_speed = self.SIGNAL_SPEED_DICT[self.aspect]
+            self.signal_restricted_speed = self.SIGNAL_SPEED_DICT[self.screen_shot.get_signal_aspect()]
             self.under_signal_restriction = self.is_under_signal_restriction()
 
             if self.screen_shot.is_at_station():
