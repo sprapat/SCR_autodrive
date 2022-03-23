@@ -162,3 +162,10 @@ We can read it as if we are at station, we must disable control.
 So I replace all references to self.disable_control to self.screen_shot.is_at_station()
 
 > commit
+
+### is_under_signal_restriction
+is_under_signal_restriction should return either True or False.
+And if it's true, then we can ask for the signal restriction.
+
+When read the method is_under_signal_restriction(self), I have to understand self.signal_restricted_speed.
+Then I see the source of mixed value, it's **SIGNAL_SPEED_DICT**.

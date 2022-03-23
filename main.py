@@ -22,7 +22,7 @@ class Autodrive:
         self.loading = False            
 
     def change_speed(self):
-        if self.last_current_speed == self.follow_speed.current_speed and self.screen_shot.is_at_station() == False and self.loading == False:
+        if (self.last_current_speed == self.follow_speed.current_speed) and (self.screen_shot.is_at_station() == False) and (self.loading == False):
             self.follow_speed.change_speed()
             if self.last_current_speed == 0:
                 self.last_current_speed = 1
@@ -35,9 +35,15 @@ class Autodrive:
         # TODO: under_signal_restriction is either False or String
         # This is a mixed value of different type.
         # We may change this later.
-        if type(self.signal_restricted_speed) != bool and self.signal_restricted_speed != False and (self.screen_shot.is_required_AWS_acknowledge() == True or self.loading == True):
+
+        # if self.signal_restricted_speed contains value and require AWS acknowledge or need_load_passenger_action
+        # then return signal aspect
+        if (type(self.signal_restricted_speed) != bool) and \
+            (self.signal_restricted_speed != False) and \
+            (self.screen_shot.is_required_AWS_acknowledge() == True or self.loading == True):
             return self.screen_shot.get_signal_aspect()
-        elif type(self.signal_restricted_speed) == bool and self.signal_restricted_speed == False:
+        
+        if type(self.signal_restricted_speed) == bool and self.signal_restricted_speed == False:
             return False
 
     def acknowledge_AWS(self):
