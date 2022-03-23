@@ -21,7 +21,6 @@ class Autodrive:
         # Flags
         self.signal_restricted_speed = False  
         self.disable_control = False             
-        self.under_signal_restriction = False
         self.loading = False            
 
     def change_speed(self):
@@ -54,7 +53,7 @@ class Autodrive:
                 return self.speed_limit
             return 45
 
-        elif type(self.signal_restricted_speed) != bool and self.signal_restricted_speed != False and self.under_signal_restriction != False:
+        elif type(self.signal_restricted_speed) != bool and self.signal_restricted_speed != False and self.is_under_signal_restriction() != False:
             if self.speed_limit < self.signal_restricted_speed:
                 return self.speed_limit
             return self.signal_restricted_speed
@@ -66,7 +65,7 @@ class Autodrive:
         code_speed = f'speed this code is following is: {self.follow_speed.following_speed}'
         speed_limit = f'the speed limit if the code is under signal restriction is: {self.speed_limit}'
         signal_restricted_speed = f'the signal restricted speed is: {self.signal_restricted_speed}'
-        is_under_signal_restriction = f'Is the code under signal restriction?: {self.under_signal_restriction}'
+        is_under_signal_restriction = f'Is the code under signal restriction?: {self.is_under_signal_restriction()}'
         next_signal_aspect = f'The next signal aspect is: {self.screen_shot.get_signal_aspect()}'
         approaching_station = f'approaching station?: {self.screen_shot.is_approaching_station()}'
         disabled_control = f'disabled control?: {self.disable_control}'
@@ -82,7 +81,6 @@ class Autodrive:
             if self.screen_shot.is_required_AWS_acknowledge():
                 self.acknowledge_AWS()
             self.signal_restricted_speed = self.SIGNAL_SPEED_DICT[self.screen_shot.get_signal_aspect()]
-            self.under_signal_restriction = self.is_under_signal_restriction()
 
             if self.screen_shot.is_at_station():
                 print('is at station')
@@ -92,7 +90,7 @@ class Autodrive:
             if self.screen_shot.need_load_passenger_action():
                 keyboard.press_and_release('t')
                 self.loading = True
-            if self.screen_shot.need_close_door(self.under_signal_restriction):
+            if self.screen_shot.need_close_door(self.is_under_signal_restriction()):
                 keyboard.press_and_release('t')
                 self.loading = False
 
