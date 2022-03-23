@@ -117,3 +117,26 @@ back to main.py again and see whether the main loop in start method is clean.
 I'd like to remove self.have_AWS because we should be able to read this from screenshot.
 So I start to change self.have_AWS to self.screen_shot.is_required_AWS_acknowledge()
 > commit
+
+Similar to self.have_AWS, I think we can remove self.aspect as well.
+> commit
+
+Now, it's self.under_signal_restriction's turn to be removed.
+> commit
+
+The rest is a bit difficult for me to remove. Have to understand more about the code.
+Will add comment along the way.
+
+then I read method determine_following_speed.
+I see that I can simplify 'if clause' from this
+
+# train is approaching station, maximum speed limit will be 45
+if self.screen_shot.is_approaching_station() == True:
+    if self.speed_limit < 45:
+        return self.speed_limit
+    return 45
+
+to this
+# train is approaching station, maximum speed limit will be 45
+if self.screen_shot.is_approaching_station() == True:
+    return min(self.speed_limit, 45)

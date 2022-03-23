@@ -16,7 +16,6 @@ class Autodrive:
         self.follow_speed = Follow_speed(self.change_speed_obj)
         self.top_speed = top_speed
         self.screen_shot = ScreenShot()
-        # Initialize value
 
         # Flags
         self.signal_restricted_speed = False  
@@ -48,10 +47,9 @@ class Autodrive:
         keyboard.press_and_release('q')
 
     def determine_following_speed(self):
+        # train is approaching station, maximum speed limit will be 45
         if self.screen_shot.is_approaching_station() == True:
-            if self.speed_limit < 45:
-                return self.speed_limit
-            return 45
+            return min(self.speed_limit, 45)
 
         elif type(self.signal_restricted_speed) != bool and self.signal_restricted_speed != False and self.is_under_signal_restriction() != False:
             if self.speed_limit < self.signal_restricted_speed:
@@ -103,8 +101,6 @@ class Autodrive:
             if speed_limit is not None:
                 self.speed_limit = speed_limit
                 
-            
-
             self.follow_speed.change_following_speed(self.determine_following_speed())
             self.change_speed()
             # print(datetime.now()-before_start_timestamp)
