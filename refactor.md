@@ -110,3 +110,10 @@ self.screen_shot.need_close_door(self.under_signal_restriction)
 because if self.signal_restricted_speed is equal to 0 then it would be equal to False
 * add more info in Autodrive.print_train_info()
 *remove "self.type(self.signal_restricted_speed)" bug
+
+3/23/2022
+### main.py
+back to main.py again and see whether the main loop in start method is clean.
+I'd like to remove self.have_AWS because we should be able to read this from screenshot.
+So I start to change self.have_AWS to self.screen_shot.is_required_AWS_acknowledge()
+> commit

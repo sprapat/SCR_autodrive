@@ -22,7 +22,6 @@ class Autodrive:
         # Flags
         self.signal_restricted_speed = False  
         self.disable_control = False             
-        self.have_AWS = False # Automatic Warning System
         self.under_signal_restriction = False
         self.loading = False            
 
@@ -40,7 +39,7 @@ class Autodrive:
         # TODO: under_signal_restriction is either False or String
         # This is a mixed value of different type.
         # We may change this later.
-        if type(self.signal_restricted_speed) != bool and self.signal_restricted_speed != False and (self.have_AWS == True or self.loading == True):
+        if type(self.signal_restricted_speed) != bool and self.signal_restricted_speed != False and (self.screen_shot.is_required_AWS_acknowledge() == True or self.loading == True):
             return self.aspect
         elif type(self.signal_restricted_speed) == bool and self.signal_restricted_speed == False:
             return False
@@ -83,10 +82,6 @@ class Autodrive:
             self.print_train_info()
             if self.screen_shot.is_required_AWS_acknowledge():
                 self.acknowledge_AWS()
-                self.have_AWS = True
-            else:
-                self.have_AWS = False     
-
             self.aspect = self.screen_shot.get_signal_aspect()           
             self.signal_restricted_speed = self.SIGNAL_SPEED_DICT[self.aspect]
             self.under_signal_restriction = self.is_under_signal_restriction()
