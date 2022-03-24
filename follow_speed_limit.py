@@ -28,8 +28,8 @@ class Follow_speed:
     def change_following_speed(self, following_speed):
         self.following_speed = following_speed
 
-    def change_current_speed(self):
-        speed_difference = self.following_speed - self.current_speed
+    def change_current_speed(self, current_speed, following_speed):
+        speed_difference = following_speed - current_speed
         if speed_difference > 0:
             self.change_speed_obj.increase_speed(speed_difference)
         elif speed_difference < 0:
