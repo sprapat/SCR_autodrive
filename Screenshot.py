@@ -42,8 +42,9 @@ Pos = namedtuple("Pos", "y x")
 
 class ScreenShot:
     """This class represents screen shot and we can ask information from screen shot"""
-    def __init__(self):
+    def __init__(self, top_speed):
         self.image = None
+        self.top_speed = top_speed
         # cache - keep all cache values
         self.cache = {}
         # cache digit image
@@ -55,7 +56,8 @@ class ScreenShot:
         self.ready_to_load2_image = cv2.imread('need_to_load_passenger_or_close_doors/ready_to_load2.png')
         self.close_doors1_image = cv2.imread('need_to_load_passenger_or_close_doors/close_doors1.png')
         self.close_doors2_image = cv2.imread('need_to_load_passenger_or_close_doors/close_doors2.png')
-    
+
+
     def remove_all_cache(self):
         self.cache = {}
 
@@ -200,12 +202,12 @@ class ScreenShot:
         return self.cache['speed_limit']
 
     #one use
-    def get_current_speed(self, top_speed):
+    def get_current_speed(self):
         if 'current_speed' not in self.cache:
             mon = [933, 90, 906, 1]
             image2 = self.image[mon[0]:mon[0]+mon[1], mon[2]:mon[2]+mon[3]]
             sought = [85,176,0]
-            result = round(np.count_nonzero(np.all(image2==sought,axis=2)) * (top_speed/90))
+            result = round(np.count_nonzero(np.all(image2==sought,axis=2)) * (self.top_speed/90))
             try:
                 result = int(result)
             except Exception:
