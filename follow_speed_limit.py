@@ -22,13 +22,13 @@ class Follow_speed:
         self.current_speed = 0
         self.change_speed_obj = change_speed_obj
 
-    def change_current_speed(self, current_speed):
+    def change_current_speed_value(self, current_speed):
         self.current_speed = current_speed
     
     def change_following_speed(self, following_speed):
         self.following_speed = following_speed
 
-    def change_speed(self):
+    def change_current_speed(self):
         speed_difference = self.following_speed - self.current_speed
         if speed_difference > 0:
             self.change_speed_obj.increase_speed(speed_difference)

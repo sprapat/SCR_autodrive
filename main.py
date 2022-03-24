@@ -18,29 +18,12 @@ class Autodrive:
         self.screen_shot = ScreenShot()
 
         # Flags
-        self.signal_restricted_speed = False  
         self.loading = False            
 
-    def change_speed(self):
+    def need_change_current_speed(self):
         if (self.last_current_speed == self.follow_speed.current_speed) and (self.screen_shot.is_at_station() == False) and (self.loading == False):
-            self.follow_speed.change_speed()
-            if self.last_current_speed == 0:
-                self.last_current_speed = 1
-            else:
-                self.last_current_speed = self.follow_speed.current_speed
-        else:
-            self.last_current_speed = self.follow_speed.current_speed
-
-    def is_under_signal_restriction(self):
-        # TODO: under_signal_restriction is either False or String
-        # This is a mixed value of different type.
-        # We may change this later.
-
-        # if self.signal_restricted_speed contains value and require AWS acknowledge or need_load_passenger_action
-        # then return signal aspect
-        if (type(self.signal_restricted_speed) != bool) and \
-            (self.screen_shot.is_required_AWS_acknowledge() == True or self.loading == True or self.is_under_signal_restriction() != False):
-            return self.screen_shot.get_signal_aspect()
+            return True
+        self.last_current_speed = self.follow_speed.current_speed
         return False
 
     def acknowledge_AWS(self):
@@ -49,13 +32,14 @@ class Autodrive:
         keyboard.press_and_release('q')
 
     def determine_following_speed(self):
+        # signal restricted speed is the max speed a train can travel if not approaching a station (can be lower if the speed limit is lower)
+        signal_restricted_speed = self.SIGNAL_SPEED_DICT[self.screen_shot.get_signal_aspect()]
         # train is approaching a station, maximum speed limit will be 45 (can be less)
         if self.screen_shot.is_approaching_station() == True:
             return min(self.speed_limit, 45)
-
         # if train is not approaching a station but under signal_restricted_speed, maximum speed limit will be self.signal_restricted_speed (can be less)
-        elif type(self.signal_restricted_speed) != bool and self.is_under_signal_restriction() != False:
-            return min(self.speed_limit, self.signal_restricted_speed)
+        elif type(signal_restricted_speed) != bool:
+            return min(self.speed_limit, signal_restricted_speed)
 
             
         return self.speed_limit
@@ -65,49 +49,52 @@ class Autodrive:
         code_speed = f'speed this code is following is: {self.follow_speed.following_speed}'
         speed_limit = f'the speed limit if the code is under signal restriction is: {self.speed_limit}'
         signal_restricted_speed = f'the signal restricted speed is: {self.signal_restricted_speed}'
-        is_under_signal_restriction = f'Is the code under signal restriction?: {self.is_under_signal_restriction()}'
         next_signal_aspect = f'The next signal aspect is: {self.screen_shot.get_signal_aspect()}'
         approaching_station = f'approaching station?: {self.screen_shot.is_approaching_station()}'
         disabled_control = f'disabled control?: {self.screen_shot.is_at_station()}'
         loading = f'is the train loading?: {self.loading}'
-        have_aws = f'have aws is {self.have_AWS}'
-        print(','.join([current_speed, code_speed, speed_limit, signal_restricted_speed, is_under_signal_restriction, next_signal_aspect, approaching_station, disabled_control, loading, have_aws]))
+        print(','.join([current_speed, code_speed, speed_limit, signal_restricted_speed, next_signal_aspect, approaching_station, disabled_control, loading]))
 
     # @profile
     def start(self):
         while True:
             before_start_timestamp = datetime.now()
+            #capture screenshot that is use to determine: current_speed, speed_limit, distance, AWS, and signal aspect
             self.screen_shot.capture()
             
+            #if require aws acknowledgement, then acknowledge AWS
             if self.screen_shot.is_required_AWS_acknowledge():
                 self.acknowledge_AWS()
 
-            self.signal_restricted_speed = self.SIGNAL_SPEED_DICT[self.screen_shot.get_signal_aspect()]
+            #Press T at station section
+            # if need to load passenger then load passenger by pressing T
             if self.screen_shot.need_load_passenger_action():
                 keyboard.press_and_release('t')
                 self.loading = True
-            if self.screen_shot.need_close_door(self.is_under_signal_restriction()):
+            # if need to close doors (need to close doors and the signal is NOT Red) then close doors by pressing T
+            if self.screen_shot.need_close_door(self.screen_shot.get_signal_aspect()):
                 keyboard.press_and_release('t')
                 self.loading = False
 
+            # Update speed section
             # read current speed from screen and keep in Follow_speed
             current_speed = self.screen_shot.get_current_speed(self.top_speed)
             if current_speed is not None:
-                self.follow_speed.change_current_speed(current_speed)
+                self.follow_speed.change_current_speed_value(current_speed)
             # read speed limit from screen and keep in Autodrive
             speed_limit = self.screen_shot.get_speed_limit()
             if speed_limit is not None:
                 self.speed_limit = speed_limit
                
             self.print_train_info()
+            #Determine following_speed from approaching station, signal aspect and speed limit then change the following_speed accrodingly
             self.follow_speed.change_following_speed(self.determine_following_speed())
-            self.change_speed()
+            # if need to change the current speed then change the current speed (meaning by actually pressing w or s)
+            if self.need_change_current_speed():
+                self.follow_speed.change_current_speed()
             # print(datetime.now()-before_start_timestamp)
             # break
 
 if __name__=='__main__':            
     top_speed = int(argv[1])
     Autodrive(top_speed).start()
-# lp = LineProfiler()
-# lp_wrapper = lp(Autodrive(125).start)
-# lp.print_stats()

@@ -177,3 +177,10 @@ So today I remove **self.signal_restricted_speed != False** entirely so it just 
 
 * Add more info to print_train_info()
 
+3/24/2022
+### main.py
+=======
+Dew's note
+* So today I decided to remove under_signal_restriction entirely cuz it's only used in determine_following_speed() and it's purpose really is to check that AWS had been hit by signal (which I decided to change for the signal_restricted_speed to kick in immediately instead of waiting for AWS) and (to check whether the train is at station (which doesn't matter because the controls would be disable anyways) or the train is loading (which again the controls would disable) or that the AWS had already hit last time (which again doesn't matter))
+    TL;DR: it's useless so I remove it
+* move self.signal_restricted_speed to signal_restricted_speed in determine_following_speed() as it's the only place that is used
