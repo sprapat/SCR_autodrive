@@ -10,10 +10,7 @@ class Autodrive:
         # Parameters
         self.speed_limit = 0
         self.last_current_speed = 0
-        # self.change_speed_obj = Change_speed(top_speed)
-        # self.follow_speed = Follow_speed(self.change_speed_obj)
         self.screen_shot = ScreenShot(top_speed)
-        # self.top_speed = top_speed
         self.engine = Engine(top_speed)
         # Flags
         self.loading_passenger = False            
@@ -58,7 +55,7 @@ class Autodrive:
     def start(self):
         while True:
             self.screen_shot.capture()
-            self.following_speed = self.determine_following_speed()  
+            # self.following_speed = self.determine_following_speed()  
 
             #if require aws acknowledgement, then acknowledge AWS
             if self.screen_shot.is_required_AWS_acknowledge():
@@ -85,7 +82,7 @@ class Autodrive:
             #Determine following_speed from approaching station, signal aspect and speed limit then change the following_speed accrodingly
             # if need to change the current speed then change the current speed (meaning by actually pressing w or s)
             if self.need_change_current_speed():
-                self.engine.change_current_speed(self.screen_shot.get_current_speed(), self.following_speed)
+                self.engine.change_current_speed(self.screen_shot.get_current_speed(), self.determine_following_speed())
             # print(datetime.now()-before_start_timestamp)
             # break
 
