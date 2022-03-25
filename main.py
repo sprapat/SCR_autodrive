@@ -8,7 +8,7 @@ class Autodrive:
 
     def __init__(self,top_speed) -> None:
         # Parameters
-        self.speed_limit = 0
+        # self.speed_limit = 0
         self.last_current_speed = 0
         self.screen_shot = ScreenShot(top_speed)
         self.engine = Engine(top_speed)
@@ -24,7 +24,7 @@ class Autodrive:
     def print_train_info(self):
         current_speed = f'The train\'s current speed is: {self.screen_shot.get_current_speed()}'
         code_speed = f'speed this code is following is: {self.follow_speed.following_speed}'
-        speed_limit = f'the speed limit if the code is under signal restriction is: {self.speed_limit}'
+        speed_limit = f'the speed limit if the code is under signal restriction is: {self.screen_shot.get_speed_limit()}'
         # signal_restricted_speed = f'the signal restricted speed is: {self.signal_restricted_speed}'
         next_signal_aspect = f'The next signal aspect is: {self.screen_shot.get_signal_aspect()}'
         approaching_station = f'approaching station?: {self.screen_shot.is_approaching_station()}'
@@ -71,9 +71,9 @@ class Autodrive:
             # Update speed section
             # read current speed from screen and keep in Follow_speed
             # read speed limit from screen and keep in Autodrive
-            speed_limit = self.screen_shot.get_speed_limit()
-            if speed_limit is not None:
-                self.speed_limit = speed_limit
+            # speed_limit = self.screen_shot.get_speed_limit()
+            # if speed_limit is not None:
+            #     self.speed_limit = speed_limit
 
             # self.print_train_info()
             #Determine following_speed from approaching station, signal aspect and speed limit then change the following_speed accrodingly
