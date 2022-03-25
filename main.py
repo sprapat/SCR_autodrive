@@ -15,7 +15,10 @@ class Autodrive:
         self.loading_passenger = False            
 
     def need_change_current_speed(self):
-        if (self.last_current_speed == self.screen_shot.get_current_speed()) and (self.screen_shot.is_at_station() == False) and (self.loading_passenger == False):
+        """Return True if we need to change train speed"""
+        if (self.last_current_speed == self.screen_shot.get_current_speed()) and \
+           (not self.screen_shot.is_at_station()) and \
+           (not self.loading_passenger):
             return True
         self.last_current_speed = self.screen_shot.get_current_speed()
         return False
