@@ -36,7 +36,6 @@ class Autodrive:
     def determine_following_speed(self):
         """Determine following speed based on signal aspect and approaching station."""
         # first we determine from signal aspect
-        # manage following speed based on signal aspect
         if self.screen_shot.get_signal_aspect() in ['green','white','double yellow']:
            result = self.screen_shot.get_speed_limit()
         elif self.screen_shot.get_signal_aspect() == 'yellow':
@@ -46,7 +45,6 @@ class Autodrive:
         else:
            result = self.screen_shot.get_speed_limit()
         # then we consider approaching status and this has higher priority than signal aspect
-        # now, we consider is approaching station.
         # if approaching station, the speed must be less than 45
         if self.screen_shot.is_approaching_station():
             result = min(45,self.screen_shot.get_speed_limit())  
@@ -55,7 +53,6 @@ class Autodrive:
     def start(self):
         while True:
             self.screen_shot.capture()
-            # self.following_speed = self.determine_following_speed()  
 
             #if require aws acknowledgement, then acknowledge AWS
             if self.screen_shot.is_required_AWS_acknowledge():
