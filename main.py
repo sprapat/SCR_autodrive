@@ -7,11 +7,10 @@ class Autodrive:
     SIGNAL_SPEED_DICT = {'yellow':45, 'red':0, 'double yellow':False, 'green':False, 'white':False, 'out':False}
 
     def __init__(self,top_speed) -> None:
-        # Parameters
-        # self.speed_limit = 0
-        self.last_current_speed = 0
         self.screen_shot = ScreenShot(top_speed)
         self.engine = Engine(top_speed)
+        
+        self.last_current_speed = 0
         # Flags
         self.loading_passenger = False            
 
@@ -67,13 +66,6 @@ class Autodrive:
             if self.screen_shot.need_close_door(self.screen_shot.get_signal_aspect()):
                 self.engine.close_door()
                 self.loading_passenger = False   
-
-            # Update speed section
-            # read current speed from screen and keep in Follow_speed
-            # read speed limit from screen and keep in Autodrive
-            # speed_limit = self.screen_shot.get_speed_limit()
-            # if speed_limit is not None:
-            #     self.speed_limit = speed_limit
 
             # self.print_train_info()
             #Determine following_speed from approaching station, signal aspect and speed limit then change the following_speed accrodingly
