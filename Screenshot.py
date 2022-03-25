@@ -1,5 +1,5 @@
 # Set value to True to work on a machine without SCR program
-PAPA_MACHINE = False
+PAPA_MACHINE = True
 
 if not PAPA_MACHINE:
     import pyautogui

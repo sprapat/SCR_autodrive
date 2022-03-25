@@ -1,4 +1,5 @@
 from sys import argv
+from unittest import result
 from Screenshot import ScreenShot
 from engine import Engine
 
@@ -35,24 +36,29 @@ class Autodrive:
         print(','.join([current_speed, code_speed, speed_limit, next_signal_aspect, approaching_station, disabled_control, loading]))
 
 
+    def determine_following_speed(self):
+        """Determine following speed based on signal aspect and approaching station."""
+        # first we determine from signal aspect
+        # manage following speed based on signal aspect
+        if self.screen_shot.get_signal_aspect() in ['green','white','double yellow']:
+           result = self.screen_shot.get_speed_limit()
+        elif self.screen_shot.get_signal_aspect() == 'yellow':
+           result = min(45,self.screen_shot.get_speed_limit())
+        elif self.screen_shot.get_signal_aspect() == 'red':
+           result = 0
+        else:
+           result = self.screen_shot.get_speed_limit()
+        # then we consider approaching status and this has higher priority than signal aspect
+        # now, we consider is approaching station.
+        # if approaching station, the speed must be less than 45
+        if self.screen_shot.is_approaching_station():
+            result = min(45,self.screen_shot.get_speed_limit())  
+        return result
+
     def start(self):
         while True:
             self.screen_shot.capture()
-
-            # manage following speed based on signal aspect
-            if self.screen_shot.get_signal_aspect() in ['green','white','double yellow']:
-                self.following_speed = self.screen_shot.get_speed_limit()
-            elif self.screen_shot.get_signal_aspect() == 'yellow':
-                self.following_speed = min(45,self.screen_shot.get_speed_limit())
-            elif self.screen_shot.get_signal_aspect() == 'red':
-                self.following_speed = 0
-            else:
-                self.following_speed = self.screen_shot.get_speed_limit()
-
-            # now, we consider is approaching station.
-            # if approaching station, the speed must be less than 45
-            if self.screen_shot.is_approaching_station():
-                self.following_speed = min(45,self.screen_shot.get_speed_limit())   
+            self.following_speed = self.determine_following_speed()  
 
             #if require aws acknowledgement, then acknowledge AWS
             if self.screen_shot.is_required_AWS_acknowledge():
