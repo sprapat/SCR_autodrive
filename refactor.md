@@ -196,3 +196,10 @@ Dew's note
 Dew's note
 * create self.get_position_for_getting_distance_num() to replace [990,30,___,6] because every number character size is 9 pixel and decimal point size is 4 pixels
 * change distance_num numbers size from [990,30,___,6] to [1000,20,___,6]
+
+======
+Papa's note
+* add code to read environment variable to determine machine.
+  So we don't have to change the PAPA_MACHINE inside the code.
+  I'll just set os environment 'PAPA_MACHINE' to 1, the code will know that it's PAPA_MACHINE
+  
