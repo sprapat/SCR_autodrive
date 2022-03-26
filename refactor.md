@@ -184,3 +184,15 @@ Dew's note
 * So today I decided to remove under_signal_restriction entirely cuz it's only used in determine_following_speed() and it's purpose really is to check that AWS had been hit by signal (which I decided to change for the signal_restricted_speed to kick in immediately instead of waiting for AWS) and (to check whether the train is at station (which doesn't matter because the controls would be disable anyways) or the train is loading (which again the controls would disable) or that the AWS had already hit last time (which again doesn't matter))
     TL;DR: it's useless so I remove it
 * move self.signal_restricted_speed to signal_restricted_speed in determine_following_speed() as it's the only place that is used
+* rewrite Autodrive.start()
+
+3/25/2022
+======
+Dew's note
+* remove unused files
+
+3/26/2022
+======
+Dew's note
+* create self.get_position_for_getting_distance_num() to replace [990,30,___,6] because every number character size is 9 pixel and decimal point size is 4 pixels
+* change distance_num numbers size from [990,30,___,6] to [1000,20,___,6]

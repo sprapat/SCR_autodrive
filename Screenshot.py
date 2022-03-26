@@ -1,5 +1,5 @@
 # Set value to True to work on a machine without SCR program
-PAPA_MACHINE = True
+PAPA_MACHINE = False
 
 if not PAPA_MACHINE:
     import pyautogui
@@ -27,6 +27,10 @@ def compare_image_similarity(img1, img2) -> float:
     """compare 2 images as numpy array and return mean square error
        assume that both images are the same size
     """
+    # cv2.imshow('image',img1)
+    # cv2.waitKey()
+    # cv2.imshow('image',img2)
+    # cv2.waitKey()
     result = np.sum((img1.astype('float') - img2.astype('float')) ** 2)
     result /= float(img1.shape[0] * img1.shape[1])
     return result
@@ -56,6 +60,11 @@ class ScreenShot:
         self.ready_to_load2_image = cv2.imread('need_to_load_passenger_or_close_doors/ready_to_load2.png')
         self.close_doors1_image = cv2.imread('need_to_load_passenger_or_close_doors/close_doors1.png')
         self.close_doors2_image = cv2.imread('need_to_load_passenger_or_close_doors/close_doors2.png')
+        self.guard_buzzer1_image = cv2.imread('need_to_load_passenger_or_close_doors/guard_buzzer1.png')
+        self.max_first_num_error = {i:0 for i in range(11)}
+        self.min_second_num_error = {i:999999999 for i in range(11)}
+        self.max_err = 0
+        
 
 
     def remove_all_cache(self):
@@ -78,25 +87,26 @@ class ScreenShot:
         new_bw_image = convert_to_BW_image(cropped_new_image, thresh)
         return compare_image_similarity(old_bw_image, new_bw_image)
 
-    def is_required_AWS_acknowledge(self):
-        if 'is_required_AWS_acknowledge' not in self.cache:
-            self.cache['is_required_AWS_acknowledge'] = not self.is_same_color(Pos(975, 1267), BLACK)
-        return self.cache['is_required_AWS_acknowledge']
-
     #one use
+    def is_required_AWS_acknowledge(self):
+        return not self.is_same_color(Pos(975, 1267), BLACK)
+
     def get_signal_aspect(self):
-        """Return signal aspect as string"""
-        if self.is_same_color(Pos(945, 1307), YELLOW):
-            return 'double yellow'
-        if self.is_same_color(Pos(985, 1307), YELLOW):
-            return 'yellow'
-        if self.is_same_color(Pos(1005, 1307), RED):
-            return 'red'
-        if self.is_same_color(Pos(965, 1305), GREEN):
-            return 'green'
-        if self.is_same_color(Pos(965, 1305), WHITE):
-            return 'white'
-        return 'out'            
+        if 'signal_aspect' not in self.cache:
+            """Return signal aspect as string"""
+            if self.is_same_color(Pos(945, 1307), YELLOW):
+                self.cache['signal_aspect'] = 'double yellow'
+            elif self.is_same_color(Pos(985, 1307), YELLOW):
+                self.cache['signal_aspect'] = 'yellow'
+            elif self.is_same_color(Pos(1005, 1307), RED):
+                self.cache['signal_aspect'] = 'red'
+            elif self.is_same_color(Pos(965, 1305), GREEN):
+                self.cache['signal_aspect'] = 'green'
+            elif self.is_same_color(Pos(965, 1305), WHITE):
+                self.cache['signal_aspect'] = 'white'
+            else:
+                self.cache['signal_aspect'] = 'out'        
+        return self.cache['signal_aspect'] 
 
     def is_approaching_station(self):
         if 'is_approaching_station' not in self.cache:
@@ -105,14 +115,15 @@ class ScreenShot:
             self.cache['is_approaching_station'] = (distance is not False) and (distance <= 0.2)
         return self.cache['is_approaching_station']
 
-    #one use
     def is_at_station(self):
-        return (self.get_distance_till_next_station() is not False) and (self.get_distance_till_next_station() == 0.0)
+        if 'is_at_station' not in self.cache:
+            self.cache['is_at_station'] = (self.get_distance_till_next_station() is not False) and (self.get_distance_till_next_station() == 0.0)
+        return self.cache['is_at_station']
 
-    def get_loading_advisory_message(self):
-        if 'loading_advisory_message' not in self.cache:
-            self.cache['loading_advisory_message'] = self.OCR([820,30,830,300],50,True)
-        return self.cache['loading_advisory_message']
+    def get_position_for_getting_distance_num(self,expression):
+        #so since a number size is 9 pixels and the size of the decimal point is 4 pixels, I replace the name of "num_size" and "dot_size" to be their actual respective size
+        new_expression = expression.replace('num_size','9').replace('dot_size','4')
+        return [1000,20,680+eval(new_expression),6]
 
     def get_distance_till_next_station(self):
         if 'distance_till_next_station' not in self.cache:
@@ -120,17 +131,19 @@ class ScreenShot:
             #with tens digit [990,30,711,6] [990,30,702,6] [990,30,689,6] [990,30,680,6] 
             distance = 0
             #if the distance is x.xx instead of xx.xx
-            if self.get_min_of_values([990,30,711,6])[0] == 'no_tens_digit':
+            print('xx.xX')
+            if self.get_min_of_values(self.get_position_for_getting_distance_num('num_size+num_size+dot_size+num_size')) == 'no_tens_digit':
                 # check the x.Xx
-                print(.1)
-                distance += 0.1*self.get_min_of_values([990,30,693,6])[0]
+                print('x.Xx')
+                distance += 0.1*self.get_min_of_values(self.get_position_for_getting_distance_num('num_size+dot_size'))
                 if distance <= 0.2:
                     # check the X.xx
-                    print(1)
-                    distance += self.get_min_of_values([990,30,680,6])[0]
+                    print('X.xx')
+                    distance += self.get_min_of_values(self.get_position_for_getting_distance_num('0'))
                     if distance <= 0.2:
                         #check the x.xX
-                        distance += 0.01*self.get_min_of_values([990,30,702,6])[0]
+                        print('x.xX')
+                        distance += 0.01*self.get_min_of_values(self.get_position_for_getting_distance_num('num_size+dot_size+num_size'))
                         if distance > 0.2:
                             distance = False
                     else:
@@ -139,19 +152,21 @@ class ScreenShot:
                     distance = False
             else:
                 # check the xx.Xx
-                print(.1)
-                distance += 0.1*self.get_min_of_values([990,30,702,6])[0]
+                print('xx.Xx')
+                distance += 0.1*self.get_min_of_values(self.get_position_for_getting_distance_num('num_size+num_size+dot_size'))
                 if distance <= 0.2:
                     # check the xX.xx
-                    print(1)
-                    distance += self.get_min_of_values([990,30,689,6])[0]
+                    print('xX.xx')
+                    distance += self.get_min_of_values(self.get_position_for_getting_distance_num('num_size'))
                     if distance <= 0.2:
                         # check the Xx.xx
                         print(10)
-                        distance += 10*self.get_min_of_values([990,30,680,6])[0]
+                        print('Xx.xx')
+                        distance += 10*self.get_min_of_values(self.get_position_for_getting_distance_num('0'))
                         if distance <= 0.2:
                             # check the xx.xX
-                            distance += 0.01*self.get_min_of_values([990,30,711,6])[0]
+                            print('xx.xX')
+                            distance += 0.01*self.get_min_of_values(self.get_position_for_getting_distance_num('num_size+num_size+dot_size+num_size'))
                             if distance > 0.2:
                                 distance = False
                         else:
@@ -166,16 +181,30 @@ class ScreenShot:
         return self.cache['distance_till_next_station']
 
     def get_min_of_values(self,mon):
-        min = [0,100000000]
-        for num in range(11):
-            result = self.compare_to_existing_image(self.digit_image[num],mon,50)
+        # min = [0,100000000]
 
-            if result < min[1]:
-                if num == 10: 
-                    num = 'no_tens_digit'
-                min = [num,float(result)]
-        print(min)
-        return min
+        min_similarity_score = 100000000
+        err_list = []
+        best_num = None
+        for num in range(11):
+            similarity_score = self.compare_to_existing_image(self.digit_image[num],mon,200)
+            err_list.append([similarity_score,num])
+            if similarity_score < min_similarity_score:
+                min_similarity_score = similarity_score
+                best_num = num
+                if best_num == 10: 
+                    best_num = 'no_tens_digit'
+                # min = [num,float(result)]
+
+        err_list.sort()
+        self.max_first_num_error[err_list[0][1]] = max(self.max_first_num_error[err_list[0][1]], err_list[0][0])
+        self.min_second_num_error[err_list[1][1]] = min(self.min_second_num_error[err_list[1][1]], err_list[1][0])
+        self.max_err = max(min_similarity_score, self.max_err) 
+        # print(min)
+        print(self.max_err)
+        print(self.max_first_num_error)
+        print(self.min_second_num_error)
+        return best_num
 
     #one use
     def need_load_passenger_action(self):
@@ -188,9 +217,9 @@ class ScreenShot:
         mon = [820,30,830,300]
         return under_signal_restriction != 'red' and \
             ((self.compare_to_existing_image(self.close_doors1_image, mon, 200) < 5000) or \
-            (self.compare_to_existing_image(self.close_doors2_image, mon, 200)) < 5000)
+            (self.compare_to_existing_image(self.close_doors2_image, mon, 200) < 5000) or \
+            (self.compare_to_existing_image(self.guard_buzzer1_image, mon, 200) < 5000))
     
-    #one use
     def get_speed_limit(self):
         if 'speed_limit' not in self.cache:
             min = 100000000
@@ -201,7 +230,6 @@ class ScreenShot:
                     self.cache['speed_limit'] = speed_limit
         return self.cache['speed_limit']
 
-    #one use
     def get_current_speed(self):
         if 'current_speed' not in self.cache:
             mon = [933, 90, 906, 1]

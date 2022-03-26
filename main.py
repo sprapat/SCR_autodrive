@@ -1,5 +1,4 @@
 from sys import argv
-from unittest import result
 from Screenshot import ScreenShot
 from engine import Engine
 
