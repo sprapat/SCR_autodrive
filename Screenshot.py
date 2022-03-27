@@ -14,6 +14,13 @@ import numpy as np
 import cv2
 from collections import namedtuple
 
+# Define Pos as namedtuple
+# numpy array is in this format [height, width] = [y,x]
+# Pos(100,20) means position at y=100, x=20
+Pos = namedtuple("Pos", "y x")
+# Rect = y, height, x, width
+Rect = namedtuple("Rect", "y h x w")
+
 # constant
 YELLOW = [0,190,255]
 RED = [0,0,255]
@@ -22,6 +29,11 @@ WHITE = [255,255,255]
 BLACK = [0,0,0]
 
 SIMILARITY_THRESHOLD = 1000
+SIMILARITY_THRESHOLD_2 = 5000
+BW_THRESHOLD = 200 # threshold for converting black and white
+
+MESSAGE_RECT = Rect(y=820,h=30,x=830,w=300)
+# NEED_LOAD_PASSENGER_RECT = Rect(y=820,h=30,x=830,w=300)
 
 """
 Utility codes
@@ -33,10 +45,6 @@ def compare_image_similarity(img1, img2) -> float:
     """compare 2 images as numpy array and return mean square error
        assume that both images are the same size
     """
-    # cv2.imshow('image',img1)
-    # cv2.waitKey()
-    # cv2.imshow('image',img2)
-    # cv2.waitKey()
     result = np.sum((img1.astype('float') - img2.astype('float')) ** 2)
     result /= float(img1.shape[0] * img1.shape[1])
     return result
@@ -44,11 +52,6 @@ def compare_image_similarity(img1, img2) -> float:
 def convert_to_BW_image(img, threshold):
     """return binary image"""
     return cv2.threshold(img, threshold, 255, cv2.THRESH_BINARY)[1]
-
-# Define Pos as namedtuple
-# numpy array is in this format [height, width] = [y,x]
-# Pos(100,20) means position at y=100, x=20
-Pos = namedtuple("Pos", "y x")
 
 class ScreenShot:
     """This class represents screen shot and we can ask information from screen shot"""
@@ -58,20 +61,21 @@ class ScreenShot:
         # cache - keep all cache values
         self.cache = {}
         # cache digit image
-        self.digit_image = [cv2.imread(f'distance_num/{num}.png') for num in range(10)]+[cv2.imread(f'distance_num/no_tens_digit.png')]
+        self.digit_image = [self.get_bw_image_from_filename(f'distance_num/{num}.png') for num in range(10)]+[self.get_bw_image_from_filename(f'distance_num/no_tens_digit.png')]
         # cache speed limit image
-        self.speed_limit_image = {speed_limit:cv2.imread(f'speed_limits/{speed_limit}.png') for speed_limit in [15,30,45,50,60,65,75,80,90,100,110,125]} 
+        self.speed_limit_image = {speed_limit:self.get_bw_image_from_filename(f'speed_limits/{speed_limit}.png') for speed_limit in [15,30,45,50,60,65,75,80,90,100,110,125]} 
         # cache other images for comparison
-        self.ready_to_load1_image = cv2.imread('need_to_load_passenger_or_close_doors/ready_to_load1.png')
-        self.ready_to_load2_image = cv2.imread('need_to_load_passenger_or_close_doors/ready_to_load2.png')
-        self.close_doors1_image = cv2.imread('need_to_load_passenger_or_close_doors/close_doors1.png')
-        self.close_doors2_image = cv2.imread('need_to_load_passenger_or_close_doors/close_doors2.png')
-        self.guard_buzzer1_image = cv2.imread('need_to_load_passenger_or_close_doors/guard_buzzer1.png')
+        self.ready_to_load1_image = self.get_bw_image_from_filename('need_to_load_passenger_or_close_doors/ready_to_load1.png')
+        self.ready_to_load2_image = self.get_bw_image_from_filename('need_to_load_passenger_or_close_doors/ready_to_load2.png')
+        self.close_doors1_image = self.get_bw_image_from_filename('need_to_load_passenger_or_close_doors/close_doors1.png')
+        self.close_doors2_image = self.get_bw_image_from_filename('need_to_load_passenger_or_close_doors/close_doors2.png')
+        self.guard_buzzer1_image = self.get_bw_image_from_filename('need_to_load_passenger_or_close_doors/guard_buzzer1.png')
         # self.max_first_num_error = {i:0 for i in range(11)}
         # self.min_second_num_error = {i:999999999 for i in range(11)}
         # self.max_err = 0
         
-
+    def get_bw_image_from_filename(self, filename):
+        return convert_to_BW_image(cv2.imread(filename), BW_THRESHOLD)
 
     def remove_all_cache(self):
         self.cache = {}
@@ -88,10 +92,20 @@ class ScreenShot:
         return np.array_equal(self.image[pos.y, pos.x], color)
 
     def compare_to_existing_image(self,old_image, mon, thresh):
-        cropped_new_image = self.image[mon[0]:mon[0]+mon[1], mon[2]:mon[2]+mon[3]]
-        old_bw_image = convert_to_BW_image(old_image, thresh)
+        # cropped_new_image = self.image[mon[0]:mon[0]+mon[1], mon[2]:mon[2]+mon[3]]
+        # # old_bw_image = convert_to_BW_image(old_image, thresh)
+        # old_bw_image = old_image
+        # new_bw_image = convert_to_BW_image(cropped_new_image, thresh)
+        # return compare_image_similarity(old_bw_image, new_bw_image)
+        rect = Rect(y=mon[0], h=mon[1], x=mon[2], w=mon[3])
+        return self.zz_compare_to_existing_image(old_image, rect, BW_THRESHOLD)
+
+    def zz_compare_to_existing_image(self,old_image, rect, thresh):
+        # cropped_new_image = self.image[mon[0]:mon[0]+mon[1], mon[2]:mon[2]+mon[3]]
+        cropped_new_image = self.image[rect.y:rect.y+rect.h, rect.x:rect.x+rect.w]
+        # old_bw_image = convert_to_BW_image(old_image, thresh)
         new_bw_image = convert_to_BW_image(cropped_new_image, thresh)
-        return compare_image_similarity(old_bw_image, new_bw_image)
+        return compare_image_similarity(old_image, new_bw_image)       
 
     #one use
     def is_required_AWS_acknowledge(self):
@@ -184,7 +198,7 @@ class ScreenShot:
         err_list = []
         best_num = None
         for num in range(11):
-            similarity_score = self.compare_to_existing_image(self.digit_image[num],mon,200)
+            similarity_score = self.compare_to_existing_image(self.digit_image[num],mon,BW_THRESHOLD)
             err_list.append([similarity_score,num])
             if similarity_score < min_similarity_score:
                 min_similarity_score = similarity_score
@@ -205,23 +219,30 @@ class ScreenShot:
 
     #one use
     def need_load_passenger_action(self):
-        mon = [820,30,830,300]
-        return ((self.compare_to_existing_image(self.ready_to_load1_image, mon, 200) < SIMILARITY_THRESHOLD) or \
-            (self.compare_to_existing_image(self.ready_to_load2_image,mon, 200)) < SIMILARITY_THRESHOLD)
+        # mon = [820,30,830,300]
+        # return ((self.compare_to_existing_image(self.ready_to_load1_image, mon, BW_THRESHOLD) < SIMILARITY_THRESHOLD) or \
+        #     (self.compare_to_existing_image(self.ready_to_load2_image,mon, BW_THRESHOLD)) < SIMILARITY_THRESHOLD)
+        # mon = [820,30,830,300]
+        return ((self.compare_to_existing_image(self.ready_to_load1_image, MESSAGE_RECT, BW_THRESHOLD) < SIMILARITY_THRESHOLD) or \
+            (self.compare_to_existing_image(self.ready_to_load2_image, MESSAGE_RECT, BW_THRESHOLD)) < SIMILARITY_THRESHOLD)
 
     #one use
     def need_close_door(self, under_signal_restriction):
-        mon = [820,30,830,300]
+        # mon = [820,30,830,300]
+        # return under_signal_restriction != 'red' and \
+        #     ((self.compare_to_existing_image(self.close_doors1_image, mon, BW_THRESHOLD) < 5000) or \
+        #     (self.compare_to_existing_image(self.close_doors2_image, mon, BW_THRESHOLD) < 5000) or \
+        #     (self.compare_to_existing_image(self.guard_buzzer1_image, mon, BW_THRESHOLD) < 5000))
         return under_signal_restriction != 'red' and \
-            ((self.compare_to_existing_image(self.close_doors1_image, mon, 200) < 5000) or \
-            (self.compare_to_existing_image(self.close_doors2_image, mon, 200) < 5000) or \
-            (self.compare_to_existing_image(self.guard_buzzer1_image, mon, 200) < 5000))
+            ((self.zz_compare_to_existing_image(self.close_doors1_image, MESSAGE_RECT, BW_THRESHOLD) < SIMILARITY_THRESHOLD_2) or \
+            (self.zz_compare_to_existing_image(self.close_doors2_image, MESSAGE_RECT, BW_THRESHOLD) < SIMILARITY_THRESHOLD_2) or \
+            (self.zz_compare_to_existing_image(self.guard_buzzer1_image, MESSAGE_RECT, BW_THRESHOLD) < SIMILARITY_THRESHOLD_2))            
     
     def get_speed_limit(self):
         if 'speed_limit' not in self.cache:
             min = 100000000
             for speed_limit in self.speed_limit_image:
-                similarity_score = self.compare_to_existing_image(self.speed_limit_image[speed_limit],[970, 20, 950, 30], 200)
+                similarity_score = self.compare_to_existing_image(self.speed_limit_image[speed_limit],[970, 20, 950, 30], BW_THRESHOLD)
                 if similarity_score < min:
                     min = similarity_score
                     self.cache['speed_limit'] = speed_limit

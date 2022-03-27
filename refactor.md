@@ -207,3 +207,9 @@ Papa's note
   So we don't have to change the PAPA_MACHINE inside the code.
   I'll just set os environment 'PAPA_MACHINE' to 1, the code will know that it's PAPA_MACHINE
   
+3/27/2022
+======
+
+Refactor code and try to increase the performance of compare_to_existing_image.
+We don't have to convert reference image into old_bw_image every time because this is static.
+We can move this into __init__ part.
