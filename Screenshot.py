@@ -1,11 +1,5 @@
 # Set value to True to work on a machine without SCR program
-import os
-if os.getenv('PAPA_MACHINE')=='1':
-    print('papa machine')
-    PAPA_MACHINE = True
-else:
-    print('not papa machine')
-    PAPA_MACHINE = False
+PAPA_MACHINE = False
 
 if not PAPA_MACHINE:
     import pyautogui
