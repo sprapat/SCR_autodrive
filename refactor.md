@@ -192,7 +192,11 @@ Dew's note
 * remove unused files
 
 3/26/2022
+### Screenshot.py
 ======
 Dew's note
 * create self.get_position_for_getting_distance_num() to replace [990,30,___,6] because every number character size is 9 pixel and decimal point size is 4 pixels
-* change distance_num numbers size from [990,30,___,6] to [1000,20,___,6]
+* change distance_num pictures size from [990,30,___,6] to [1000,20,___,6]
+
+## TODO:
+* remove the mixed value from self.cache['distance_till_next_station'] and ~~best_num in get_min_of_values()~~
