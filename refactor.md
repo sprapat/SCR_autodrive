@@ -207,3 +207,4 @@ Papa's note
   So we don't have to change the PAPA_MACHINE inside the code.
   I'll just set os environment 'PAPA_MACHINE' to 1, the code will know that it's PAPA_MACHINE
   
+* remove the mixed value from self.cache['distance_till_next_station'] and ~~best_num in get_min_of_values()~~
