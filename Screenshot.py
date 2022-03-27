@@ -146,6 +146,8 @@ class ScreenShot:
         return [1000,20,680+eval(new_expression),6]
 
     def get_distance_till_next_station(self):
+        """Note: this method should return distance in number. normally, we should not return False.
+        I'll check whether False is used for?"""
         if 'distance_till_next_station' not in self.cache:
             #with no tens digit [990,30,693,6] [990,30,680,6]
             #with tens digit [990,30,711,6] [990,30,702,6] [990,30,689,6] [990,30,680,6] 
@@ -192,14 +194,12 @@ class ScreenShot:
         return self.cache['distance_till_next_station']
 
     def get_min_of_values(self,mon):
-        # min = [0,100000000]
-
         min_similarity_score = 100000000
-        err_list = []
+        # err_list = []
         best_num = None
         for num in range(11):
             similarity_score = self.compare_to_existing_image(self.digit_image[num],mon,BW_THRESHOLD)
-            err_list.append([similarity_score,num])
+            # err_list.append([similarity_score,num])
             if similarity_score < min_similarity_score:
                 min_similarity_score = similarity_score
                 best_num = num
@@ -219,20 +219,11 @@ class ScreenShot:
 
     #one use
     def need_load_passenger_action(self):
-        # mon = [820,30,830,300]
-        # return ((self.compare_to_existing_image(self.ready_to_load1_image, mon, BW_THRESHOLD) < SIMILARITY_THRESHOLD) or \
-        #     (self.compare_to_existing_image(self.ready_to_load2_image,mon, BW_THRESHOLD)) < SIMILARITY_THRESHOLD)
-        # mon = [820,30,830,300]
         return ((self.compare_to_existing_image(self.ready_to_load1_image, MESSAGE_RECT, BW_THRESHOLD) < SIMILARITY_THRESHOLD) or \
             (self.compare_to_existing_image(self.ready_to_load2_image, MESSAGE_RECT, BW_THRESHOLD)) < SIMILARITY_THRESHOLD)
 
     #one use
     def need_close_door(self, under_signal_restriction):
-        # mon = [820,30,830,300]
-        # return under_signal_restriction != 'red' and \
-        #     ((self.compare_to_existing_image(self.close_doors1_image, mon, BW_THRESHOLD) < 5000) or \
-        #     (self.compare_to_existing_image(self.close_doors2_image, mon, BW_THRESHOLD) < 5000) or \
-        #     (self.compare_to_existing_image(self.guard_buzzer1_image, mon, BW_THRESHOLD) < 5000))
         return under_signal_restriction != 'red' and \
             ((self.zz_compare_to_existing_image(self.close_doors1_image, MESSAGE_RECT, BW_THRESHOLD) < SIMILARITY_THRESHOLD_2) or \
             (self.zz_compare_to_existing_image(self.close_doors2_image, MESSAGE_RECT, BW_THRESHOLD) < SIMILARITY_THRESHOLD_2) or \

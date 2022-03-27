@@ -213,3 +213,7 @@ Papa's note
 Refactor code and try to increase the performance of compare_to_existing_image.
 We don't have to convert reference image into old_bw_image every time because this is static.
 We can move this into __init__ part.
+
+get_distance_till_next_station returns both distance in number and False.
+When I read the code, distance return False when distance till next station is too far
+and we don't need to consider it.
